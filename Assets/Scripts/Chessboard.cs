@@ -6,8 +6,11 @@ using UnityEngine;
 public class Chessboard : MonoBehaviour
 {
 
-    [Header("Graphic")] //creates a header so that the graphics (ie, visual asset) config is seperate in the inspector
+    [Header("Graphics")] //creates a header so that the graphics (ie, visual asset) config is seperate in the inspector
     [SerializeField] public Material tileMaterial;
+    [SerializeField] public float tileSize = 1.0f;
+    [SerializeField] public float yOffset = 0.2f;
+    [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
 
     private const int TILE_COUNT_X = 8;
@@ -15,9 +18,11 @@ public class Chessboard : MonoBehaviour
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
     private GameObject[,] tiles; //Instantiates the base class for all Unity entities
     private Vector2Int currentHover;
+    private Vector3 bounds;
+
     private void Awake()  //Grid is generated on scene load
     {
-        GenerateGridTiles(1, TILE_COUNT_X, TILE_COUNT_Y);
+        GenerateGridTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
         //Creates a 1 meter grid of 8x8 units on scene start
     }
@@ -63,6 +68,10 @@ public class Chessboard : MonoBehaviour
     //board generation
     private void GenerateGridTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
     {
+
+        yOffset += transform.position.y;
+        bounds = new Vector3((tileSizeX / 2) * tileSize, 0, (tileSizeX / 2) * tileSize) + boardCenter;
+
         tiles = new GameObject[tileSizeX, tileSizeY];
         for(int x = 0; x < tileSizeX; x++)
         {
@@ -75,7 +84,7 @@ public class Chessboard : MonoBehaviour
     private GameObject GenerateSingleTile(float tileSize, int x, int y)
 
     {
-        GameObject tileObject = new GameObject(String.Format("X:{0}, y:{1}", x, y)); //generate the tile GameObject
+        GameObject tileObject = new GameObject($"X:{x}, Y:{y}"); //generate the tile GameObject
         tileObject.transform.parent = transform; //adds the tile GameObject to the titles GameObject
 
         Mesh mesh = new Mesh();
@@ -83,10 +92,10 @@ public class Chessboard : MonoBehaviour
         tileObject.AddComponent<MeshRenderer>().material = tileMaterial; //render the 2D mesh 
 
         Vector3[] vertices = new Vector3[4]; //generates 4 vertices for the board
-        vertices[0] = new Vector3(x * tileSize, 0, y * tileSize);
-        vertices[1] = new Vector3(x * tileSize, 0, (y+1) * tileSize);   //vertex in each corner of the grid
-        vertices[2] = new Vector3((x+1)* tileSize, 0, y * tileSize);
-        vertices[3] = new Vector3((x+1) * tileSize, 0, (y+1) * tileSize);
+        vertices[0] = new Vector3(x * tileSize, yOffset, y * tileSize) - bounds;
+        vertices[1] = new Vector3(x * tileSize, yOffset, (y+1) * tileSize) - bounds;   //vertex in each corner of the grid
+        vertices[2] = new Vector3((x+1)* tileSize, yOffset, y * tileSize) - bounds;
+        vertices[3] = new Vector3((x+1) * tileSize, yOffset, (y+1) * tileSize) - bounds;
             
         //order for mesh triangle rendering
         int[] tris = new int[] { 0, 1, 2, 1, 3, 2 };
