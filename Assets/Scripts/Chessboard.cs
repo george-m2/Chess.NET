@@ -160,6 +160,11 @@ public class Chessboard : MonoBehaviour
         pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
         pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
 
+        for(int i = 0; i < TILE_COUNT_X; i++)
+        {
+            pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, blackTeam);
+        }
+
 
     }
 
