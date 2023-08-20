@@ -12,7 +12,12 @@ public class Chessboard : MonoBehaviour
     [SerializeField] public float yOffset = 0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
+    [Header("Prefabs & Materials")]
+    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private Material[] teamMaterials;
 
+
+    private Piece[,] pieces; //x,y array
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
@@ -25,6 +30,9 @@ public class Chessboard : MonoBehaviour
         GenerateGridTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
         //Creates a 1 meter grid of 8x8 units on scene start
+
+        SpawnAllPieces();
+        SpawnSinglePiece(PieceType.King, 1);
     }
 
     private void Update()
@@ -120,6 +128,49 @@ public class Chessboard : MonoBehaviour
                     return new Vector2Int(x,y);
 
         return -Vector2Int.one; //OutOfBounds exception, -1,-1
+    }
+
+    private void SpawnAllPieces()
+    {
+        pieces = new Piece[TILE_COUNT_X, TILE_COUNT_X];
+        int whiteTeam = 0, blackTeam = 1;
+
+        //white
+        pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
+        pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
+        pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
+        pieces[3, 0] = SpawnSinglePiece(PieceType.Queen, whiteTeam);
+        pieces[4, 0] = SpawnSinglePiece(PieceType.King, whiteTeam);
+        pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
+        pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
+        pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
+
+        for(int i = 0; i < TILE_COUNT_X; i++)
+        {
+            pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, whiteTeam);
+        }
+
+        //black
+        pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
+        pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
+        pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
+        pieces[3, 7] = SpawnSinglePiece(PieceType.Queen, blackTeam);
+        pieces[4, 7] = SpawnSinglePiece(PieceType.King, blackTeam);
+        pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
+        pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
+        pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
+
+
+    }
+
+    private Piece SpawnSinglePiece(PieceType type, int team)
+    {
+        Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
+        piece.type = type;
+        piece.team = team;
+        piece.GetComponent<MeshRenderer>().material = teamMaterials[team];
+
+        return piece;
     }
 }
 
