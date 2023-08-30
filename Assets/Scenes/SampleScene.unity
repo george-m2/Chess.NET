@@ -444,7 +444,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileMaterial: {fileID: 2100000, guid: c5ab958ac47d04d31a31c33362a758f7, type: 2}
   tileSize: 0.6
-  yOffset: 0.1
+  yOffset: 0
   boardCenter: {x: 0, y: 0, z: 0}
   prefabs:
   - {fileID: 8419010555995259116, guid: e4b671eb4038444ef9b2e7dabe5de138, type: 3}
