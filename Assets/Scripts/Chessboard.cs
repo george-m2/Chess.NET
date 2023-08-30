@@ -6,10 +6,10 @@ using UnityEngine;
 public class Chessboard : MonoBehaviour
 {
 
-    [Header("Graphics")] //creates a header so that the graphics (ie, visual asset) config is seperate in the inspector
+    [Header("Graphics")] 
     [SerializeField] public Material tileMaterial;
     [SerializeField] public float tileSize = -0.4f;
-    [SerializeField] public float yOffset = 0.2f;
+    [SerializeField] public float yOffset = -0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
     [Header("Prefabs & Materials")]
@@ -25,7 +25,7 @@ public class Chessboard : MonoBehaviour
     private Vector2Int currentHover;
     private Vector3 bounds;
 
-    private void Awake()  //Grid is generated on scene load
+    private void Awake() 
     {
         GenerateGridTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
@@ -42,9 +42,9 @@ public class Chessboard : MonoBehaviour
             currentCamera = Camera.main;
             return;
         }
-        RaycastHit info;
+
         Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover")))
+        if (Physics.Raycast(ray, out RaycastHit info, 100, LayerMask.GetMask("Tile", "Hover")))
         {
             //Get the indexes of tile we hit
             Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
@@ -186,8 +186,13 @@ public class Chessboard : MonoBehaviour
         Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
         piece.type = type;
         piece.team = team;
-        piece.GetComponent<MeshRenderer>().material = teamMaterials[team];
 
+        if (team == 0) //makes black team face the right way
+        {
+            piece.transform.Rotate(Vector3.forward, -180);
+        }
+
+        piece.GetComponent<MeshRenderer>().material = teamMaterials[team];
         return piece;
     }
 
