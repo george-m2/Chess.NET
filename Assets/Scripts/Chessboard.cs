@@ -7,9 +7,9 @@ public class Chessboard : MonoBehaviour
 {
 
     [Header("Graphics")] 
-    [SerializeField] public Material tileMaterial;
-    [SerializeField] public float tileSize = -0.4f;
-    [SerializeField] public float yOffset = -0.2f;
+    [SerializeField] private Material tileMaterial;
+    [SerializeField] private float tileSize = 0.4f;
+    [SerializeField] private float yOffset = -0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
     [Header("Prefabs & Materials")]
@@ -95,7 +95,7 @@ public class Chessboard : MonoBehaviour
         GameObject tileObject = new GameObject($"X:{x}, Y:{y}"); //generate the tile GameObject
         tileObject.transform.parent = transform; //adds the tile GameObject to the titles GameObject
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = new();
         tileObject.AddComponent<MeshFilter>().mesh = mesh; //creates a reference to hold a 2D mesh
         tileObject.AddComponent<MeshRenderer>().material = tileMaterial; //render the 2D mesh 
 
