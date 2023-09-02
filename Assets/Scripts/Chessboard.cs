@@ -11,6 +11,9 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float tileSize = 0.4f;
     [SerializeField] private float yOffset = -0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
+    [SerializeField] private float takeSize = 0.3f;
+    [SerializeField] private float takeSpace = 0.3f;
+    [SerializeField] private float dragOffset = 1.5f;
 
     [Header("Prefabs & Materials")]
     [SerializeField] private GameObject[] prefabs;
@@ -23,6 +26,8 @@ public class Chessboard : MonoBehaviour
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
     private GameObject[,] tiles; //Instantiates the base class for all Unity entities
     private Vector2Int currentHover;
+    private List<Piece> takenWhitePiece = new();
+    private List<Piece> takenBlackPiece = new();
     private Vector3 bounds;
     private Piece currentlyDragging;
 
@@ -105,6 +110,16 @@ public class Chessboard : MonoBehaviour
                 currentlyDragging = null;
             }
         }
+        if (currentlyDragging)
+
+        {
+            Plane horizontalPlane = new(Vector3.up, Vector3.up * yOffset);
+            float distance;
+            if (horizontalPlane.Raycast(ray, out distance))
+                currentlyDragging.SetPosition(ray.GetPoint(distance)+ Vector3.up * dragOffset);
+
+        }
+
     }
 
     //board generation
@@ -248,7 +263,29 @@ public class Chessboard : MonoBehaviour
                 return false;
             }
 
+            if (ocp.team == 0)
+            {
+                takenWhitePiece.Add(ocp);
+                ocp.SetScale(Vector3.one * takeSize);
+                ocp.SetPosition(
+                new Vector3(9 * tileSize, yOffset, -1 * tileSize)
+                - bounds
+                + new Vector3(tileSize / 2, 0, tileSize / 2)
+                + (Vector3.forward * takeSpace) * takenWhitePiece.Count);
+            }
+
+            else
+            {
+                takenBlackPiece.Add(ocp);
+                ocp.SetScale(Vector3.one * takeSize);
+                ocp.SetPosition(
+                new Vector3(-2 * tileSize, yOffset, 9 * tileSize)
+                - bounds
+                + new Vector3(tileSize / 2, 0, tileSize / 2)
+                + (Vector3.back * takeSpace) * takenBlackPiece.Count);
+            }
         }
+
         pieces[x, y] = cp;
         pieces[previousPosition.x, previousPosition.y] = null;
 
