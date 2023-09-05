@@ -45,4 +45,19 @@ public class Piece : MonoBehaviour
         if (force)
             transform.localScale = desiredScale;
     }
+
+    public virtual List<Vector2Int> GetAvailableMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    {
+        List<Vector2Int> n = new()
+        {
+            new Vector2Int(3, 3),
+            new Vector2Int(3, 4),
+            new Vector2Int(4, 3),
+            new Vector2Int(4, 4)
+        };
+
+        return n;
+
+
+    }
 }
