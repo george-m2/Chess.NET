@@ -57,7 +57,36 @@ public class Piece : MonoBehaviour
         };
 
         return n;
+    }
 
 
+    protected void CheckMovesInDirection(int dirX, int dirY, ref Piece[,] board, int tileCountX, int tileCountY, List<Vector2Int> moves)
+    {
+        int newX = currentX + dirX;
+        int newY = currentY + dirY;
+
+        while (newX >= 0 && newX < tileCountX && newY >= 0 && newY < tileCountY)
+        {
+            // Check if the target position is empty
+            if (board[newX, newY] == null)
+            {
+                moves.Add(new Vector2Int(newX, newY));
+            }
+            // Check if the target position contains an opponent's piece
+            else if (board[newX, newY].team != team)
+            {
+                moves.Add(new Vector2Int(newX, newY));
+                break; // Stop checking in this direction after encountering an opponent's piece
+            }
+            // Stop checking in this direction if there is a piece of the same team
+            else if (board[newX, newY].team == team)
+            {
+                break;
+            }
+
+            newX += dirX;
+            newY += dirY;
+        }
     }
 }
+

@@ -5,7 +5,7 @@ public class Knight : Piece
 {
     public override List<Vector2Int> GetAvailableMoves(ref Piece[,] board, int tileCountX, int tileCountY)
     {
-        List<Vector2Int> moves = new List<Vector2Int>();
+        List<Vector2Int> moves = new();
 
         // L-shaped
         int[] dx = { 2, 1, -1, -2, -2, -1, 1, 2 };
