@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,8 +32,9 @@ public class Chessboard : MonoBehaviour
     private List<Vector2Int> availableMoves = new();
     private bool isWhiteTurn = true;
 
-    private void Awake() 
+    private void Awake()
     {
+        isWhiteTurn = true;
         GenerateGridTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
         //Creates a 1 meter grid of 8x8 units on scene start
@@ -52,7 +51,7 @@ public class Chessboard : MonoBehaviour
             return;
         }
 
-        Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
+        var ray = currentCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit info, 100, LayerMask.GetMask("Tile", "Hover", "Highlight")))
         {
             //Get the indexes of tile we hit
