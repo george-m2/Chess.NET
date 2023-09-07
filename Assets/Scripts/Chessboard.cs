@@ -13,6 +13,7 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float takeSize = 0.3f;
     [SerializeField] private float takeSpace = 0.3f;
     [SerializeField] private float dragOffset = 1.5f;
+    [SerializeField] private GameObject victoryScreen;
 
     [Header("Prefabs & Materials")]
     [SerializeField] private GameObject[] prefabs;
@@ -75,17 +76,7 @@ public class Chessboard : MonoBehaviour
             {
                 if (pieces[hitPosition.x, hitPosition.y] != null)
                 {
-                    if ((pieces[hitPosition.x, hitPosition.y].team == 0 && !isWhiteTurn) || (pieces[hitPosition.x, hitPosition.y].team == 1 && isWhiteTurn))
-                    {
-                        currentlyDragging = pieces[hitPosition.x, hitPosition.y];
-                        availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
-                        HighlightTiles();
-                        //highlighted list of legal moves
-                    }
-                    
-                        
-
-                    else if (pieces[hitPosition.x, hitPosition.y].team == 1 && !isWhiteTurn)
+                    if ((pieces[hitPosition.x, hitPosition.y].team == 1 && isWhiteTurn) || (pieces[hitPosition.x, hitPosition.y].team == 0 && !isWhiteTurn))
                     {
                         currentlyDragging = pieces[hitPosition.x, hitPosition.y];
                         availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
@@ -277,8 +268,26 @@ public class Chessboard : MonoBehaviour
         availableMoves.Clear();
     }
 
+    private void CheckMate(int team)
+    {
+        DisplayWin(team);
+    }
 
+    private void DisplayWin(int winningTeam)
+    {
+        victoryScreen.SetActive(true);
+        victoryScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
+    }
 
+    public void Restart()
+    {
+        
+    }
+    
+    public void Quit()
+    {
+        Application.Quit();
+    }
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
     {
         for (int i = 0; i < moves.Count; i++)
@@ -304,6 +313,11 @@ public class Chessboard : MonoBehaviour
 
             if (ocp.team == 0)
             {
+
+                if (ocp.type == PieceType.King)
+                {
+                    CheckMate(1); //white wins
+                }
                 takenWhitePiece.Add(ocp);
                 ocp.SetScale(Vector3.one * takeSize);
                 ocp.SetPosition(
@@ -315,6 +329,10 @@ public class Chessboard : MonoBehaviour
 
             else
             {
+                if (ocp.type == PieceType.King)
+                {
+                    CheckMate(0); //black wins
+                }
                 takenBlackPiece.Add(ocp);
                 ocp.SetScale(Vector3.one * takeSize);
                 ocp.SetPosition(
