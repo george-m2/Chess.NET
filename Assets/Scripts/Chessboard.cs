@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Chessboard : MonoBehaviour
 {
 
@@ -31,6 +32,7 @@ public class Chessboard : MonoBehaviour
     private Vector3 bounds;
     private Piece currentlyDragging;
     private List<Vector2Int> availableMoves = new();
+    private bool isWhiteTurn = true;
 
     private void Awake() 
     {
@@ -62,7 +64,7 @@ public class Chessboard : MonoBehaviour
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
-            //if we were already hovernig a tile, change prewius
+            //if we were already hovering a tile, change previous
             if (currentHover != hitPosition)
             {
                 tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
@@ -74,16 +76,23 @@ public class Chessboard : MonoBehaviour
             {
                 if (pieces[hitPosition.x, hitPosition.y] != null)
                 {
-                    if (true)
+                    if ((pieces[hitPosition.x, hitPosition.y].team == 0 && !isWhiteTurn) || (pieces[hitPosition.x, hitPosition.y].team == 1 && isWhiteTurn))
                     {
                         currentlyDragging = pieces[hitPosition.x, hitPosition.y];
                         availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
                         HighlightTiles();
                         //highlighted list of legal moves
                     }
+                    
+                        
 
-
-
+                    else if (pieces[hitPosition.x, hitPosition.y].team == 1 && !isWhiteTurn)
+                    {
+                        currentlyDragging = pieces[hitPosition.x, hitPosition.y];
+                        availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                        HighlightTiles();
+                        //highlighted list of legal moves
+                    }
                 }
             }
 
@@ -321,6 +330,8 @@ public class Chessboard : MonoBehaviour
         pieces[previousPosition.x, previousPosition.y] = null;
 
         PositionSinglePiece(x, y);
+        
+        isWhiteTurn = !isWhiteTurn; //switches turn
         return true;
     }
 }
