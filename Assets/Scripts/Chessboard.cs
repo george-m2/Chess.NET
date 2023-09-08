@@ -1,13 +1,18 @@
 using System.Collections.Generic;
-using UnityEditor.Timeline.Actions;
+using Pieces;
 using UnityEngine;
 
+public enum SpecialMove
+{
+    None = 0,
+    Promotion,
+    EnPassant,
+    Castling,
+}
 
 public class Chessboard : MonoBehaviour
 {
-
-    [Header("Graphics")] 
-    [SerializeField] private Material tileMaterial;
+    [Header("Graphics")] [SerializeField] private Material tileMaterial;
     [SerializeField] private float tileSize = 0.4f;
     [SerializeField] private float yOffset = -0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
@@ -16,11 +21,10 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float dragOffset = 1.5f;
     [SerializeField] private GameObject victoryScreen;
 
-    [Header("Prefabs & Materials")]
-    [SerializeField] private GameObject[] prefabs;
+    [Header("Prefabs & Materials")] [SerializeField]
+    private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
-
-
+    
     private Piece[,] pieces; //x,y array
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
@@ -33,6 +37,9 @@ public class Chessboard : MonoBehaviour
     private Piece currentlyDragging;
     private List<Vector2Int> availableMoves = new();
     private bool isWhiteTurn = true;
+    private List<Vector2Int[]>  moveList = new();
+    private SpecialMove specialMove;
+    
 
     private void Awake()
     {
@@ -65,10 +72,13 @@ public class Chessboard : MonoBehaviour
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
+
             //if we were already hovering a tile, change previous
             if (currentHover != hitPosition)
             {
-                tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
+                tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover))
+                    ? LayerMask.NameToLayer("Highlight")
+                    : LayerMask.NameToLayer("Tile");
                 currentHover = hitPosition;
                 tiles[currentHover.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
@@ -80,7 +90,10 @@ public class Chessboard : MonoBehaviour
                     if ((pieces[hitPosition.x, hitPosition.y].team == 1 && isWhiteTurn) || (pieces[hitPosition.x, hitPosition.y].team == 0 && !isWhiteTurn))
                     {
                         currentlyDragging = pieces[hitPosition.x, hitPosition.y];
+                        //get list of legal moves
                         availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                        //get list of special moves
+                        specialMove = currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
                         HighlightTiles();
                         //highlighted list of legal moves
                     }
@@ -97,7 +110,6 @@ public class Chessboard : MonoBehaviour
 
                 currentlyDragging = null;
                 RemoveHighlightTiles();
-
             }
         }
 
@@ -105,9 +117,12 @@ public class Chessboard : MonoBehaviour
         {
             if (currentHover != -Vector2Int.one)
             {
-                tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
+                tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover))
+                    ? LayerMask.NameToLayer("Highlight")
+                    : LayerMask.NameToLayer("Tile");
                 currentHover = -Vector2Int.one;
             }
+
             if (currentlyDragging && Input.GetMouseButtonUp(0))
             {
                 currentlyDragging.SetPosition(GetTileCenter(currentlyDragging.currentX, currentlyDragging.currentY));
@@ -115,36 +130,34 @@ public class Chessboard : MonoBehaviour
                 RemoveHighlightTiles();
             }
         }
+
         if (currentlyDragging)
 
         {
             Plane horizontalPlane = new(Vector3.up, Vector3.up * yOffset);
             float distance;
             if (horizontalPlane.Raycast(ray, out distance))
-                currentlyDragging.SetPosition(ray.GetPoint(distance)+ Vector3.up * dragOffset);
-
+                currentlyDragging.SetPosition(ray.GetPoint(distance) + Vector3.up * dragOffset);
         }
-
     }
 
     //board generation
     private void GenerateGridTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
     {
-
         yOffset += transform.position.y;
         bounds = new Vector3((tileSizeX / 2) * tileSize, 0, (tileSizeX / 2) * tileSize) + boardCenter;
 
         tiles = new GameObject[tileSizeX, tileSizeY];
-        for(int x = 0; x < tileSizeX; x++)
+        for (int x = 0; x < tileSizeX; x++)
         {
-            for(int y = 0; y < tileSizeY; y++)
+            for (int y = 0; y < tileSizeY; y++)
             {
-                tiles[x, y] = GenerateSingleTile(tileSize, x, y);  //nested for loop to generate a chessboard matrix
+                tiles[x, y] = GenerateSingleTile(tileSize, x, y); //nested for loop to generate a chessboard matrix
             }
         }
     }
-    private GameObject GenerateSingleTile(float tileSize, int x, int y)
 
+    private GameObject GenerateSingleTile(float tileSize, int x, int y)
     {
         GameObject tileObject = new($"X:{x}, Y:{y}"); //generate the tile GameObject
         tileObject.transform.parent = transform; //adds the tile GameObject to the titles GameObject
@@ -155,10 +168,11 @@ public class Chessboard : MonoBehaviour
 
         Vector3[] vertices = new Vector3[4]; //generates 4 vertices for the board
         vertices[0] = new Vector3(x * tileSize, yOffset, y * tileSize) - bounds;
-        vertices[1] = new Vector3(x * tileSize, yOffset, (y+1) * tileSize) - bounds;   //vertex in each corner of the grid
-        vertices[2] = new Vector3((x+1)* tileSize, yOffset, y * tileSize) - bounds;
-        vertices[3] = new Vector3((x+1) * tileSize, yOffset, (y+1) * tileSize) - bounds;
-            
+        vertices[1] =
+            new Vector3(x * tileSize, yOffset, (y + 1) * tileSize) - bounds; //vertex in each corner of the grid
+        vertices[2] = new Vector3((x + 1) * tileSize, yOffset, y * tileSize) - bounds;
+        vertices[3] = new Vector3((x + 1) * tileSize, yOffset, (y + 1) * tileSize) - bounds;
+
         //order for mesh triangle rendering
         int[] tris = new int[] { 0, 1, 2, 1, 3, 2 };
         mesh.vertices = vertices;
@@ -174,16 +188,16 @@ public class Chessboard : MonoBehaviour
     }
 
     private Vector2Int LookupTileIndex(GameObject hitInfo) //helper function to find the index of x,y
-    //note Vector2Int, not Vector2(Float) due to use of arrays
     {
         for (int x = 0; x < TILE_COUNT_X; x++)
-            for (int y = 0; y < TILE_COUNT_Y; y++)
-                if (tiles[x,y] == hitInfo)
-                    return new Vector2Int(x,y);
+        for (int y = 0; y < TILE_COUNT_Y; y++)
+            if (tiles[x, y] == hitInfo)
+                return new Vector2Int(x, y);
 
         return -Vector2Int.one; //OutOfBounds exception, -1,-1
     }
 
+    //spawn logic 
     private void SpawnAllPieces()
     {
         pieces = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
@@ -223,16 +237,16 @@ public class Chessboard : MonoBehaviour
     private void PositionAllPieces()
     {
         for (int x = 0; x < TILE_COUNT_X; x++)
-            for (int y = 0; y < TILE_COUNT_Y; y++)
-                if (pieces[x, y] != null)
-                    PositionSinglePiece(x, y, true);
+        for (int y = 0; y < TILE_COUNT_Y; y++)
+            if (pieces[x, y] != null)
+                PositionSinglePiece(x, y, true);
     }
 
     private void PositionSinglePiece(int x, int y, bool force = false)
     {
         pieces[x, y].currentX = x;
         pieces[x, y].currentY = y;
-        pieces[x, y].SetPosition(GetTileCenter(x,y), force);
+        pieces[x, y].SetPosition(GetTileCenter(x, y), force);
     }
 
     private Piece SpawnSinglePiece(PieceType type, int team)
@@ -269,6 +283,7 @@ public class Chessboard : MonoBehaviour
         availableMoves.Clear();
     }
 
+    //endgame logic
     private void CheckMate(int team)
     {
         DisplayWin(team);
@@ -282,16 +297,16 @@ public class Chessboard : MonoBehaviour
 
     public void Restart()
     {
-        
         //Field reset
         currentlyDragging = null;
-        availableMoves = new List<Vector2Int>();
-        
+        availableMoves.Clear();
+        moveList.Clear();
+
         //UI Reset
-        victoryScreen.transform .GetChild(0).gameObject.SetActive(false);
-        victoryScreen.transform .GetChild(1).gameObject.SetActive(false);
+        victoryScreen.transform.GetChild(0).gameObject.SetActive(false);
+        victoryScreen.transform.GetChild(1).gameObject.SetActive(false);
         victoryScreen.SetActive(false);
-        
+
         //Scene clean up
         for (int x = 0; x < TILE_COUNT_X; x++)
         {
@@ -304,24 +319,67 @@ public class Chessboard : MonoBehaviour
                 }
             }
         }
+
         for (int i = 0; i < takenWhitePiece.Count; i++)
             Destroy(takenWhitePiece[i].gameObject);
         for (int i = 0; i < takenBlackPiece.Count; i++)
             Destroy(takenBlackPiece[i].gameObject);
-        
+
         takenWhitePiece.Clear();
         takenBlackPiece.Clear();
-        
+
         //reinitialise board
         SpawnAllPieces();
         PositionAllPieces();
         isWhiteTurn = true;
     }
-    
+
     public void Quit()
     {
         Application.Quit();
     }
+    
+    //special move logic
+    private void ProcessSpecialMoves()
+    {
+        if (specialMove == SpecialMove.EnPassant)
+        {
+            var newMove = moveList[^1];
+            Piece playerPawn = pieces[newMove[1].x, newMove[1].y];
+            var targetPawnPos = moveList[^2];
+            var enemyPawn = pieces[targetPawnPos[1].x, targetPawnPos[1].y];
+
+            if (playerPawn.currentX == enemyPawn.currentX)
+            {
+                if (playerPawn.currentY == enemyPawn.currentY - 1 || playerPawn.currentY == enemyPawn.currentY + 1)
+                {
+                    if (enemyPawn.team == 0)
+                        takenWhitePiece.Add(enemyPawn);
+                    enemyPawn.SetScale(Vector3.one * takeSize);
+                    enemyPawn.SetPosition(
+                        new Vector3(9 * tileSize, yOffset, -1 * tileSize)
+                        - bounds
+                        + new Vector3(tileSize / 2, 0, tileSize / 2)
+                        + (Vector3.forward * takeSpace) * takenWhitePiece.Count);
+                }
+                else
+                {
+                    takenBlackPiece.Add(enemyPawn);
+                    enemyPawn.SetScale(Vector3.one * takeSize);
+                    enemyPawn.SetPosition(
+                        new Vector3(-2 * tileSize, yOffset, 9 * tileSize)
+                        - bounds
+                        + new Vector3(tileSize / 2, 0, tileSize / 2)
+                        + (Vector3.back * takeSpace) * takenBlackPiece.Count);
+                }
+                pieces[enemyPawn.currentX, enemyPawn.currentY] = null;
+            }
+            
+        }
+
+    }
+
+    //movement logic
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
     {
         for (int i = 0; i < moves.Count; i++)
@@ -329,36 +387,37 @@ public class Chessboard : MonoBehaviour
                 return true;
         return false;
     }
+
     private bool MoveTo(Piece cp, int x, int y)
     {
-        if (!ContainsValidMove(ref availableMoves, new Vector2(x, y)))
+        if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
             return false;
 
         Vector2Int previousPosition = new(cp.currentX, cp.currentY);
 
-        if (pieces[x,y] != null)
+        if (pieces[x, y] != null)
         {
             Piece ocp = pieces[x, y];
 
-            if(cp.team == ocp.team)
+            if (cp.team == ocp.team)
             {
                 return false;
             }
 
             if (ocp.team == 0)
             {
-
                 if (ocp.type == PieceType.King)
                 {
                     CheckMate(1); //white wins
                 }
+
                 takenWhitePiece.Add(ocp);
                 ocp.SetScale(Vector3.one * takeSize);
                 ocp.SetPosition(
-                new Vector3(9 * tileSize, yOffset, -1 * tileSize)
-                - bounds
-                + new Vector3(tileSize / 2, 0, tileSize / 2)
-                + (Vector3.forward * takeSpace) * takenWhitePiece.Count);
+                    new Vector3(9 * tileSize, yOffset, -1 * tileSize)
+                    - bounds
+                    + new Vector3(tileSize / 2, 0, tileSize / 2)
+                    + (Vector3.forward * takeSpace) * takenWhitePiece.Count);
             }
 
             else
@@ -367,13 +426,14 @@ public class Chessboard : MonoBehaviour
                 {
                     CheckMate(0); //black wins
                 }
+
                 takenBlackPiece.Add(ocp);
                 ocp.SetScale(Vector3.one * takeSize);
                 ocp.SetPosition(
-                new Vector3(-2 * tileSize, yOffset, 9 * tileSize)
-                - bounds
-                + new Vector3(tileSize / 2, 0, tileSize / 2)
-                + (Vector3.back * takeSpace) * takenBlackPiece.Count);
+                    new Vector3(-2 * tileSize, yOffset, 9 * tileSize)
+                    - bounds
+                    + new Vector3(tileSize / 2, 0, tileSize / 2)
+                    + (Vector3.back * takeSpace) * takenBlackPiece.Count);
             }
         }
 
@@ -381,9 +441,11 @@ public class Chessboard : MonoBehaviour
         pieces[previousPosition.x, previousPosition.y] = null;
 
         PositionSinglePiece(x, y);
-        
-        isWhiteTurn = !isWhiteTurn; //switches turn
-        return true;
-    }
-}
 
+        isWhiteTurn = !isWhiteTurn; //switches turn
+        moveList.Add(new Vector2Int[] { previousPosition, new Vector2Int(x, y)});
+
+        ProcessSpecialMoves();
+        return true;
+}
+}
