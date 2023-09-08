@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pieces;
 using UnityEngine;
 
 public class Rook : Piece

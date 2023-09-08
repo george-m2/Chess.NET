@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Pieces;
 using UnityEngine;
+
 public class Pawn : Piece
 {
     public override List<Vector2Int> GetAvailableMoves(ref Piece[,] board, int tileCountX, int tileCountY)
@@ -25,12 +27,50 @@ public class Pawn : Piece
 
         //kill move
         if (currentX < tileCountX - 1)
-            if (board[currentX + 1, currentY + direction] != null && board[currentX + 1, currentY + direction].team != team)
+            if (board[currentX + 1, currentY + direction] != null &&
+                board[currentX + 1, currentY + direction].team != team)
                 n.Add(new Vector2Int(currentX + 1, currentY + direction));
         if (currentX > 0)
-            if (board[currentX - 1, currentY + direction] != null && board[currentX - 1, currentY + direction].team != team)
+            if (board[currentX - 1, currentY + direction] != null &&
+                board[currentX - 1, currentY + direction].team != team)
                 n.Add(new Vector2Int(currentX - 1, currentY + direction));
 
         return n;
     }
+
+    public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
+    {
+        int direction = (team == 0) ? 1 : -1; //up if white, down if black
+        if (moveList.Count > 0)
+        {
+            var lastMove = moveList[moveList.Count - 1]; //last move
+            if (board[lastMove[1].x, lastMove[1].y].type == PieceType.Pawn) //if last move was pawn
+            {
+                if (Mathf.Abs(lastMove[0].y - lastMove[1].y) == 2)
+                {
+                    if (board[lastMove[1].x, lastMove[1].y].team != team) //if pawn is not on same team
+                    {
+                        if (lastMove[1].y == currentY) //if pawn is on same y
+                        {
+                            if (lastMove[1].x == currentX + 1) //if pawn is on right
+                            {
+                                availableMoves.Add(new Vector2Int(currentX + 1, currentY + direction));
+                                return SpecialMove.EnPassant;
+                            }
+
+                            if (lastMove[1].x == currentX - 1) //if pawn is on left
+                            {
+                                availableMoves.Add(new Vector2Int(currentX - 1, currentY + direction));
+                                return SpecialMove.EnPassant;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return SpecialMove.None;
+    }
 }
+
+
+
