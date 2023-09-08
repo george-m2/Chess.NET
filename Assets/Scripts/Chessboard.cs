@@ -292,7 +292,21 @@ public class Chessboard : MonoBehaviour
     private void DisplayWin(int winningTeam)
     {
         victoryScreen.SetActive(true);
-        victoryScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
+
+        for (int i = 0; i < victoryScreen.transform.childCount; i++)
+        {
+            GameObject childObject = victoryScreen.transform.GetChild(i).gameObject;
+
+            // Exclude buttons from deactivation
+            if (i == winningTeam || i == 2 || i == 3)
+            {
+                childObject.SetActive(true);
+            }
+            else
+            {
+                childObject.SetActive(false);
+            }
+        }
     }
 
     public void Restart()
