@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 
 
@@ -282,6 +283,39 @@ public class Chessboard : MonoBehaviour
     public void Restart()
     {
         
+        //Field reset
+        currentlyDragging = null;
+        availableMoves = new List<Vector2Int>();
+        
+        //UI Reset
+        victoryScreen.transform .GetChild(0).gameObject.SetActive(false);
+        victoryScreen.transform .GetChild(1).gameObject.SetActive(false);
+        victoryScreen.SetActive(false);
+        
+        //Scene clean up
+        for (int x = 0; x < TILE_COUNT_X; x++)
+        {
+            for (int y = 0; y < TILE_COUNT_Y; y++)
+            {
+                if (pieces[x, y] != null)
+                {
+                    Destroy(pieces[x, y].gameObject);
+                    pieces[x, y] = null;
+                }
+            }
+        }
+        for (int i = 0; i < takenWhitePiece.Count; i++)
+            Destroy(takenWhitePiece[i].gameObject);
+        for (int i = 0; i < takenBlackPiece.Count; i++)
+            Destroy(takenBlackPiece[i].gameObject);
+        
+        takenWhitePiece.Clear();
+        takenBlackPiece.Clear();
+        
+        //reinitialise board
+        SpawnAllPieces();
+        PositionAllPieces();
+        isWhiteTurn = true;
     }
     
     public void Quit()
