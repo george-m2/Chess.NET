@@ -41,6 +41,10 @@ public class Pawn : Piece
     public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
     {
         int direction = (team == 0) ? 1 : -1; //up if white, down if black
+        
+        if ((team == 0 && currentY == 6) || (team == 1 && currentY == 1)) //if pawn is in final row - 1
+           return SpecialMove.Promotion;
+        //en passant
         if (moveList.Count > 0)
         {
             var lastMove = moveList[moveList.Count - 1]; //last move

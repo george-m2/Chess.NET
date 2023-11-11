@@ -7,7 +7,7 @@ public enum SpecialMove
     None = 0,
     Promotion,
     EnPassant,
-    Castling,
+    Castle,
 }
 
 public class Chessboard : MonoBehaviour
@@ -44,7 +44,7 @@ public class Chessboard : MonoBehaviour
     private void Awake()
     {
         isWhiteTurn = true;
-        GenerateGridTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
+        GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
         //Creates a 1 meter grid of 8x8 units on scene start
 
@@ -68,8 +68,7 @@ public class Chessboard : MonoBehaviour
 
             //If we are hovering any tile after not hovering any tile
             if (currentHover == -Vector2Int.one)
-            {
-                currentHover = hitPosition;
+            {currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
 
@@ -142,7 +141,7 @@ public class Chessboard : MonoBehaviour
     }
 
     //board generation
-    private void GenerateGridTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
+    private void GenerateAllTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
     {
         yOffset += transform.position.y;
         bounds = new Vector3((tileSizeX / 2) * tileSize, 0, (tileSizeX / 2) * tileSize) + boardCenter;
@@ -168,8 +167,7 @@ public class Chessboard : MonoBehaviour
 
         Vector3[] vertices = new Vector3[4]; //generates 4 vertices for the board
         vertices[0] = new Vector3(x * tileSize, yOffset, y * tileSize) - bounds;
-        vertices[1] =
-            new Vector3(x * tileSize, yOffset, (y + 1) * tileSize) - bounds; //vertex in each corner of the grid
+        vertices[1] = new Vector3(x * tileSize, yOffset, (y + 1) * tileSize) - bounds; //vertex in each corner of the grid
         vertices[2] = new Vector3((x + 1) * tileSize, yOffset, y * tileSize) - bounds;
         vertices[3] = new Vector3((x + 1) * tileSize, yOffset, (y + 1) * tileSize) - bounds;
 
@@ -203,7 +201,7 @@ public class Chessboard : MonoBehaviour
         pieces = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
         int whiteTeam = 0, blackTeam = 1;
 
-        //white
+        // White
         for (int i = 0; i < TILE_COUNT_X; i++)
         {
             pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, whiteTeam);
@@ -212,14 +210,14 @@ public class Chessboard : MonoBehaviour
         pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
         pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
         pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
-        pieces[3, 0] = SpawnSinglePiece(PieceType.King, whiteTeam);
-        pieces[4, 0] = SpawnSinglePiece(PieceType.Queen, whiteTeam);
+        pieces[3, 0] = SpawnSinglePiece(PieceType.Queen, whiteTeam);  
+        pieces[4, 0] = SpawnSinglePiece(PieceType.King, whiteTeam); 
         pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
         pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
         pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
 
-        //black
-        for (int i = 0; i < TILE_COUNT_X; i++)  
+        //Black
+        for (int i = 0; i < TILE_COUNT_X; i++)
         {
             pieces[i, 6] = SpawnSinglePiece(PieceType.Pawn, blackTeam);
         }
@@ -227,8 +225,8 @@ public class Chessboard : MonoBehaviour
         pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
         pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
         pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
-        pieces[3, 7] = SpawnSinglePiece(PieceType.King, blackTeam);
-        pieces[4, 7] = SpawnSinglePiece(PieceType.Queen, blackTeam);
+        pieces[3, 7] = SpawnSinglePiece(PieceType.Queen, blackTeam);  
+        pieces[4, 7] = SpawnSinglePiece(PieceType.King, blackTeam); 
         pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
         pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
         pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
@@ -389,6 +387,84 @@ public class Chessboard : MonoBehaviour
                 pieces[enemyPawn.currentX, enemyPawn.currentY] = null;
             }
             
+        }
+        
+        if (specialMove == SpecialMove.Castle)
+        {
+            Vector2Int[] lastMove = moveList[^1];
+            
+            //left rook
+            if (lastMove[1].x == 2)
+            {
+                //white side
+                if (lastMove[1].y == 0)
+                {
+                    Piece rook = pieces[0, 0];
+                    pieces[3, 0] = rook;
+                    PositionSinglePiece(3, 0); //position new rook
+                    pieces[0, 0] = null; //delete old rook
+                }
+
+                //black side
+                else if (lastMove[1].y == 7)
+                {
+                    Piece rook = pieces[0, 7];
+                    pieces[3, 7] = rook;
+                    PositionSinglePiece(3, 7);
+                    pieces[0, 7] = null;
+                }
+            }
+
+            //right rook
+            else if (lastMove[1].x == 6)
+            {
+                //white side
+                if (lastMove[1].y == 0) //right, white
+                {
+                    Piece rook = pieces[7, 0];
+                    pieces[5, 0] = rook;
+                    PositionSinglePiece(5, 0); 
+                    pieces[7, 0] = null; 
+                }
+
+                //black side
+                else if (lastMove[1].y == 7)
+                {
+                    Piece rook = pieces[7, 7];
+                    pieces[5, 7] = rook;
+                    PositionSinglePiece(5, 7);
+                    pieces[7, 7] = null;
+                }
+            }
+                
+        }
+
+        if (specialMove == SpecialMove.Promotion)
+        {
+            Vector2Int[] lastMove = moveList[^1];
+            Piece pawn = pieces[lastMove[1].x, lastMove[1].y];
+
+            if (pawn.type == PieceType.Pawn)
+            {
+                if (pawn.team == 0 && lastMove[1].y == 7) //white promote
+                {
+                    Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
+                    promotedQueen.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position; //smoother pawn to queen transition
+                    //destroy pawn, spawn piece
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    
+                }
+                if (pawn.team == 1 && lastMove[1].y == 0) //black promote
+                {
+                    Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    
+                }
+            }
         }
 
     }
