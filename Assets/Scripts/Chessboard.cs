@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime;
 using System.Transactions;
 using Pieces;
 using Unity.VisualScripting;
@@ -108,6 +109,7 @@ public class Chessboard : MonoBehaviour
                         availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
                         //get list of special moves
                         specialMove = currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
+                        PreventCheck();
                         HighlightTiles();
                         //highlighted list of legal moves
                     }
@@ -551,6 +553,89 @@ public class Chessboard : MonoBehaviour
         }
     }
 
+    private void PreventCheck()
+    {
+        Piece targetKing = null;
+        for(int x = 0; x < TILE_COUNT_X; x++)
+            for(int y = 0; y < TILE_COUNT_Y; y++)
+                if(pieces[x,y] != null)
+                    if(pieces[x,y].type == PieceType.King)
+                        if(pieces[x,y].team == currentlyDragging.team)
+                            targetKing = pieces[x,y];
+        //ref availableMoves, moves putting us in check are deleted from the list
+        SimMoveForPiece(currentlyDragging, ref availableMoves, targetKing);
+    }
+
+    private void SimMoveForPiece(Piece cp, ref List<Vector2Int> moves, Piece targetKing)
+    {
+        //saves values to reset after call
+        int actualX = cp.currentX;
+        int actualY = cp.currentY;
+        List<Vector2Int> movesToRemove = new List<Vector2Int>();
+        
+        //go through all moves, sim moves and check if king is in check
+        for (int c = 0; c < moves.Count; c++)
+        {
+            int simX = moves[c].x;
+            int simY = moves[c].y;
+
+            Vector2Int kingSimPos = new Vector2Int(targetKing.currentX, targetKing.currentY);
+            //has king move been simulated?
+            if (cp.type == PieceType.King)
+                kingSimPos = new Vector2Int(simX, simY);
+
+            //copy piece array 
+            Piece[,] simulation = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
+            List<Piece> simAttackPiece = new List<Piece>();
+            for (int x = 0; x < TILE_COUNT_X; x++)
+            {
+                for (int y = 0; y < TILE_COUNT_Y; y++)
+                {
+                    if (pieces[x, y] != null)
+                    {
+                        simulation[x, y] = pieces[x, y];
+                        if (simulation[x, y].team != cp.team)
+                            simAttackPiece.Add(simulation[x, y]);
+                    }
+                }
+            }
+
+            //simulate move
+            simulation[actualX, actualY] = null;
+            cp.currentX = simX;
+            cp.currentY = simY;
+            simulation[simX, simY] = cp;
+            
+            //did a piece get taken in sim?
+            var deadPiece = simAttackPiece.Find(p => p.currentX == simX && p.currentY == simY);
+            if(deadPiece != null)
+                simAttackPiece.Remove(deadPiece);
+            
+            //get all the moves for the simulated attacking pieces 
+            List<Vector2Int> simMoves = new List<Vector2Int>();
+            for (int a = 0; a < simAttackPiece.Count; a++)
+            {
+                var pieceMoves = simAttackPiece[a].GetAvailableMoves(ref simulation, TILE_COUNT_X, TILE_COUNT_Y);
+                for (int b = 0; b < pieceMoves.Count; b++)
+                    simMoves.Add(pieceMoves[b]);
+            }
+            
+            //Is in the king in check?
+            if (ContainsValidMove(ref simMoves, kingSimPos))
+            {
+                movesToRemove.Add(moves[c]);
+            }
+            
+            //restore values
+            cp.currentX = actualX;
+            cp.currentY = actualY;
+            
+        }
+        
+        //remove from move list
+        for (int i = 0; i < movesToRemove.Count; i++)
+            moves.Remove(movesToRemove[i]);
+    }
 
     //movement logic
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
