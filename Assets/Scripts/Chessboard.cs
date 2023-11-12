@@ -1,6 +1,11 @@
 using System.Collections.Generic;
+using System.Transactions;
 using Pieces;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public enum SpecialMove
 {
@@ -20,10 +25,20 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float takeSpace = 0.3f;
     [SerializeField] private float dragOffset = 1.5f;
     [SerializeField] private GameObject victoryScreen;
-
+    [SerializeField] private GameObject whitePromotion;
+    [SerializeField] private GameObject blackPromotion;
     [Header("Prefabs & Materials")] [SerializeField]
     private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
+    [Header("UI Elements")] [SerializeField] public Button buttonWhiteQueen;
+    [SerializeField]public Button buttonWhiteRook;
+    [SerializeField]public Button buttonWhiteBishop;
+    [SerializeField]public Button buttonWhiteKnight;
+    [SerializeField]public Button buttonBlackQueen;
+    [SerializeField]public Button buttonBlackRook;
+    [SerializeField]public Button buttonBlackBishop;
+    [SerializeField]public Button buttonBlackKnight;
+    
     
     private Piece[,] pieces; //x,y array
     private const int TILE_COUNT_X = 8;
@@ -446,28 +461,96 @@ public class Chessboard : MonoBehaviour
 
             if (pawn.type == PieceType.Pawn)
             {
-                if (pawn.team == 0 && lastMove[1].y == 7) //white promote
+                if (pawn.team == 0 && lastMove[1].y == 7) //black promote
                 {
-                    Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
-                    promotedQueen.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position; //smoother pawn to queen transition
-                    //destroy pawn, spawn piece
-                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
-                    pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
-                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                    
-                }
-                if (pawn.team == 1 && lastMove[1].y == 0) //black promote
-                {
-                    Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
-                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
-                    pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
-                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                    
+                    blackPromotion.SetActive(true);
+                    buttonBlackQueen.onClick.AddListener(() =>
+                    {
+                        Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
+                        promotedQueen.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position; //smoothens promotion transition
+                        Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                        pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
+                        PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        blackPromotion.SetActive(false);
+                    });
+                    buttonBlackRook.onClick.AddListener(() =>
+                    {
+                        Piece promotedRook = SpawnSinglePiece(PieceType.Rook, 0);
+                        promotedRook.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                        pieces[lastMove[1].x, lastMove[1].y] = promotedRook;
+                        PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        blackPromotion.SetActive(false);
+                    });
+                    buttonBlackBishop.onClick.AddListener(() =>
+                    {
+                        Piece promotedBishop = SpawnSinglePiece(PieceType.Bishop, 0);
+                        promotedBishop.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                        pieces[lastMove[1].x, lastMove[1].y] = promotedBishop;
+                        PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        blackPromotion.SetActive(false);
+                    });
+                    buttonBlackRook.onClick.AddListener(() =>
+                    {
+                        Piece promotedKnight = SpawnSinglePiece(PieceType.Knight, 0);
+                        promotedKnight.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                        pieces[lastMove[1].x, lastMove[1].y] = promotedKnight;
+                        PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        blackPromotion.SetActive(false);
+                    });
+
                 }
             }
-        }
+            if (pawn.team == 1 && lastMove[1].y == 0) //white promote
+            {
+                whitePromotion.SetActive(true);
+                buttonWhiteQueen.onClick.AddListener(() =>
+                {
+                    Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 1);
+                    promotedQueen.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position; //smoothens promotion transition
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedQueen;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    whitePromotion.SetActive(false);
+                });
+                buttonWhiteRook.onClick.AddListener(() =>
+                {
+                    Piece promotedRook = SpawnSinglePiece(PieceType.Rook, 1);
+                    promotedRook.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedRook;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    whitePromotion.SetActive(false);
+                });
+                buttonWhiteBishop.onClick.AddListener(() =>
+                {
+                    Piece promotedBishop = SpawnSinglePiece(PieceType.Bishop, 1);
+                    promotedBishop.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedBishop;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    whitePromotion.SetActive(false);
+                });
+                buttonWhiteKnight.onClick.AddListener(() =>
+                {
+                    Piece promotedKnight = SpawnSinglePiece(PieceType.Knight, 1);
+                    promotedKnight.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                    Destroy(pieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    pieces[lastMove[1].x, lastMove[1].y] = promotedKnight;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                    whitePromotion.SetActive(false);
+                });
 
+            }
+                
+            
+
+
+        }
     }
+
 
     //movement logic
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
