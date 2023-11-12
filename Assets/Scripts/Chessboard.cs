@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using System.Threading;
+using System.Threading.Tasks;
 
 public enum SpecialMove
 {
@@ -765,6 +767,9 @@ public class Chessboard : MonoBehaviour
 
         isWhiteTurn = !isWhiteTurn; //switches turn
         moveList.Add(new[] { previousPosition, new Vector2Int(x, y)});
+        //rotate camera on move
+        Thread.Sleep(50);
+        currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 180);
 
         ProcessSpecialMoves();
         switch (CheckForCheckmate())
