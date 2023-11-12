@@ -39,6 +39,10 @@ public class Chessboard : MonoBehaviour
     [SerializeField]public Button buttonBlackRook;
     [SerializeField]public Button buttonBlackBishop;
     [SerializeField]public Button buttonBlackKnight;
+    public new AudioSource audio;
+    public AudioClip checkSfx; 
+    public AudioClip checkMateSfx;
+    
     
     
     private Piece[,] pieces; //x,y array
@@ -59,6 +63,7 @@ public class Chessboard : MonoBehaviour
 
     private void Awake()
     {
+        audio = GetComponent<AudioSource>();
         isWhiteTurn = true;
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
         //Change when asset imported 
@@ -227,8 +232,8 @@ public class Chessboard : MonoBehaviour
         pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
         pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
         pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
-        pieces[3, 0] = SpawnSinglePiece(PieceType.Queen, whiteTeam);  
-        pieces[4, 0] = SpawnSinglePiece(PieceType.King, whiteTeam); 
+        pieces[3, 0] = SpawnSinglePiece(PieceType.King, whiteTeam);
+        pieces[4, 0] = SpawnSinglePiece(PieceType.Queen, whiteTeam);
         pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, whiteTeam);
         pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, whiteTeam);
         pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, whiteTeam);
@@ -242,8 +247,8 @@ public class Chessboard : MonoBehaviour
         pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
         pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
         pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
-        pieces[3, 7] = SpawnSinglePiece(PieceType.Queen, blackTeam);  
-        pieces[4, 7] = SpawnSinglePiece(PieceType.King, blackTeam); 
+        pieces[3, 7] = SpawnSinglePiece(PieceType.King, blackTeam);
+        pieces[4, 7] = SpawnSinglePiece(PieceType.Queen, blackTeam);
         pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, blackTeam);
         pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, blackTeam);
         pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, blackTeam);
@@ -306,6 +311,7 @@ public class Chessboard : MonoBehaviour
 
     private void DisplayWin(int winningTeam)
     {
+        audio.PlayOneShot(checkMateSfx, 1F);
         victoryScreen.SetActive(true);
 
         for (int i = 0; i < victoryScreen.transform.childCount; i++)
@@ -637,6 +643,64 @@ public class Chessboard : MonoBehaviour
             moves.Remove(movesToRemove[i]);
     }
 
+    private bool CheckForCheckmate()
+    {
+        var lastMove = moveList[^1];
+        var targetTeam = (pieces[lastMove[1].x, lastMove[1].y].team == 0) ? 1 : 0;
+        
+        List<Piece> attackingPieces = new List<Piece>();
+        List<Piece> defendingPieces = new List<Piece>();
+        Piece targetKing = null;
+        for(int x = 0; x < TILE_COUNT_X; x++)
+            for(int y = 0; y < TILE_COUNT_Y; y++)
+            if (pieces[x, y] != null)
+            {
+                if (pieces[x, y].team == targetTeam)
+                {
+                    defendingPieces.Add(pieces[x, y]);
+                    if (pieces[x, y].type == PieceType.King)
+                        targetKing = pieces[x, y];
+                }
+
+
+                else
+                {
+                    attackingPieces.Add(pieces[x, y]);
+                }
+            }
+
+        //Is it the king being attacked?
+        List<Vector2Int> currentAvailableMoves = new List<Vector2Int>();
+        for (int i = 0; i < attackingPieces.Count; i++)
+        {
+            var pieceMoves = attackingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+            for (int j = 0; j < pieceMoves.Count; j++)
+                currentAvailableMoves.Add(pieceMoves[j]);
+        }
+        // Are we in check?
+        if(ContainsValidMove(ref currentAvailableMoves, new Vector2Int(targetKing.currentX, targetKing.currentY)))
+        {
+            //Can we block?
+            for (int i = 0; i < defendingPieces.Count; i++)
+            {
+                List<Vector2Int> defendingMoves = defendingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                SimMoveForPiece(defendingPieces[i], ref defendingMoves, targetKing);
+                
+                //check, not checkmate
+                if (defendingMoves.Count != 0)
+                {
+                    audio.PlayOneShot(checkSfx, 1F); //sfx for check
+                    return false;
+                }
+                    
+            }
+
+            return true; //checkmate condition
+        }
+        return false;
+
+    }
+
     //movement logic
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
     {
@@ -704,6 +768,10 @@ public class Chessboard : MonoBehaviour
         moveList.Add(new Vector2Int[] { previousPosition, new Vector2Int(x, y)});
 
         ProcessSpecialMoves();
+        
+        if (CheckForCheckmate())
+            CheckMate(cp.team);
+        
         return true;
 }
 }
