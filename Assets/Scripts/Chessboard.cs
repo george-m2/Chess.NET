@@ -42,6 +42,7 @@ public class Chessboard : MonoBehaviour
     public new AudioSource audio;
     public AudioClip checkSfx; 
     public AudioClip checkMateSfx;
+    public AudioClip staleMateSfx;
     
     
     
@@ -194,7 +195,7 @@ public class Chessboard : MonoBehaviour
         vertices[3] = new Vector3((x + 1) * tileSize, yOffset, (y + 1) * tileSize) - bounds;
 
         //order for mesh triangle rendering
-        int[] tris = new int[] { 0, 1, 2, 1, 3, 2 };
+        int[] tris = { 0, 1, 2, 1, 3, 2 };
         mesh.vertices = vertices;
         mesh.triangles = tris;
         mesh.RecalculateNormals(); //fixes lighting
@@ -311,23 +312,14 @@ public class Chessboard : MonoBehaviour
 
     private void DisplayWin(int winningTeam)
     {
-        audio.PlayOneShot(checkMateSfx, 1F);
+        if(winningTeam == 0 || winningTeam == 1)
+            audio.PlayOneShot(checkMateSfx, 1F);
+        
+        else if (winningTeam == 2)
+            audio.PlayOneShot(staleMateSfx, 1F);
+        
         victoryScreen.SetActive(true);
-
-        for (int i = 0; i < victoryScreen.transform.childCount; i++)
-        {
-            GameObject childObject = victoryScreen.transform.GetChild(i).gameObject;
-
-            // Exclude buttons from deactivation
-            if (i == winningTeam || i == 2 || i == 3)
-            {
-                childObject.SetActive(true);
-            }
-            else
-            {
-                childObject.SetActive(false);
-            }
-        }
+        victoryScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
     }
 
     public void Restart()
@@ -338,8 +330,9 @@ public class Chessboard : MonoBehaviour
         moveList.Clear();
 
         //UI Reset
-        victoryScreen.transform.GetChild(0).gameObject.SetActive(false);
+        victoryScreen.transform.GetChild(2).gameObject.SetActive(false);
         victoryScreen.transform.GetChild(1).gameObject.SetActive(false);
+        victoryScreen.transform.GetChild(0).gameObject.SetActive(false);
         victoryScreen.SetActive(false);
 
         //Scene clean up
@@ -643,7 +636,7 @@ public class Chessboard : MonoBehaviour
             moves.Remove(movesToRemove[i]);
     }
 
-    private bool CheckForCheckmate()
+    private int CheckForCheckmate()
     {
         var lastMove = moveList[^1];
         var targetTeam = (pieces[lastMove[1].x, lastMove[1].y].team == 0) ? 1 : 0;
@@ -661,8 +654,7 @@ public class Chessboard : MonoBehaviour
                     if (pieces[x, y].type == PieceType.King)
                         targetKing = pieces[x, y];
                 }
-
-
+                
                 else
                 {
                     attackingPieces.Add(pieces[x, y]);
@@ -690,14 +682,21 @@ public class Chessboard : MonoBehaviour
                 if (defendingMoves.Count != 0)
                 {
                     audio.PlayOneShot(checkSfx, 1F); //sfx for check
-                    return false;
+                    return 0;
                 }
                     
             }
-
-            return true; //checkmate condition
+            return 1; //checkmate condition
         }
-        return false;
+
+        for (int i = 0; i < defendingPieces.Count; i++)
+        {
+            List<Vector2Int> defendingMoves = defendingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+            SimMoveForPiece(defendingPieces[i], ref defendingMoves, targetKing);
+            if (defendingMoves.Count != 0)
+                return 0;
+        }
+        return 2; //stalemate condition
 
     }
 
@@ -765,13 +764,19 @@ public class Chessboard : MonoBehaviour
         PositionSinglePiece(x, y);
 
         isWhiteTurn = !isWhiteTurn; //switches turn
-        moveList.Add(new Vector2Int[] { previousPosition, new Vector2Int(x, y)});
+        moveList.Add(new[] { previousPosition, new Vector2Int(x, y)});
 
         ProcessSpecialMoves();
-        
-        if (CheckForCheckmate())
-            CheckMate(cp.team);
-        
+        switch (CheckForCheckmate())
+        {
+            case 1:
+                CheckMate(cp.team);
+                break;
+            case 2:
+                CheckMate(2);
+                break;
+        }
+
         return true;
-}
+    }
 }
