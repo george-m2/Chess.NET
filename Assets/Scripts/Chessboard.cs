@@ -461,6 +461,7 @@ public class Chessboard : MonoBehaviour
                 if (pawn.team == 0 && lastMove[1].y == 7) //black promote
                 {
                     blackPromotion.SetActive(true);
+                    currentlyDragging = null;
                     buttonBlackQueen.onClick.AddListener(() =>
                     {
                         Piece promotedQueen = SpawnSinglePiece(PieceType.Queen, 0);
@@ -488,7 +489,7 @@ public class Chessboard : MonoBehaviour
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
                     });
-                    buttonBlackRook.onClick.AddListener(() =>
+                    buttonBlackKnight.onClick.AddListener(() =>
                     {
                         Piece promotedKnight = SpawnSinglePiece(PieceType.Knight, 0);
                         promotedKnight.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
