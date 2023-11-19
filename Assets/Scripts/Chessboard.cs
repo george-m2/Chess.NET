@@ -32,7 +32,6 @@ public class Chessboard : MonoBehaviour
 
     [Header("UI Elements")] [SerializeField]
     public Button buttonWhiteQueen;
-
     [SerializeField] public Button buttonWhiteRook;
     [SerializeField] public Button buttonWhiteBishop;
     [SerializeField] public Button buttonWhiteKnight;
@@ -42,10 +41,12 @@ public class Chessboard : MonoBehaviour
     [SerializeField] public Button buttonBlackKnight;
     [SerializeField] public Button buttonBack;
     [SerializeField] public Button buttonForward;
+    [SerializeField] private GameObject alertPanel;
     public new AudioSource audio;
     public AudioClip checkSfx;
     public AudioClip checkMateSfx;
     public AudioClip staleMateSfx;
+    public UIManager UIManager;
 
 
     private Piece[,] pieces; //x,y array
@@ -64,7 +65,6 @@ public class Chessboard : MonoBehaviour
     private int moveIndex = -1;
     private SpecialMove specialMove;
     private List<Move> moveHistory = new List<Move>();
-
 
 
     private void Awake()
@@ -87,10 +87,18 @@ public class Chessboard : MonoBehaviour
             currentCamera = Camera.main;
             return;
         }
-
         var ray = currentCamera.ScreenPointToRay(Input.mousePosition);
+
         if (Physics.Raycast(ray, out RaycastHit info, 100, LayerMask.GetMask("Tile", "Hover", "Highlight")))
         {
+            if (moveIndex != moveHistory.Count - 1)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    UIManager.StartCoroutine(UIManager.ShowAndHide(alertPanel, 1.0f));
+                }
+                return;
+            }
             //Get the indexes of tile we hit
             Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
 
@@ -160,7 +168,6 @@ public class Chessboard : MonoBehaviour
                 RemoveHighlightTiles();
             }
         }
-
         if (currentlyDragging)
 
         {
@@ -396,7 +403,7 @@ public class Chessboard : MonoBehaviour
                         takenWhitePiece.Add(enemyPawn);
                     enemyPawn.SetScale(Vector3.one * takeSize);
                     enemyPawn.SetPosition(
-                        new Vector3(9 * tileSize, yOffset, -1 * tileSize)
+                        new Vector3(9 * tileSize, yOffset, -2 * tileSize)
                         - bounds
                         + new Vector3(tileSize / 2, 0, tileSize / 2)
                         + (Vector3.forward * takeSpace) * takenWhitePiece.Count);
@@ -752,14 +759,13 @@ public class Chessboard : MonoBehaviour
                 }
 
                 pieces[ocp.currentX, ocp.currentY] = null; //ensure taken piece is removed
-                ocp.SetScale(Vector3.one * takeSize);
                 Vector3 offBoardPosition = new Vector3(9 * tileSize, yOffset, -1 * tileSize)
                                            - bounds
                                            + new Vector3(tileSize / 2, 0, tileSize / 2)
-                                           + (Vector3.forward * takeSpace) * takenWhitePiece.Count;
+                                           + (Vector3.forward * takeSpace) * (takenWhitePiece.Count);
                 ocp.SetPosition(offBoardPosition);
-                move.OffBoardPosition =
-                    offBoardPosition; //allows pieces to return off the board when we cycle through the move list 
+                ocp.SetScale(Vector3.one * takeSize);
+                move.OffBoardPosition = offBoardPosition; //allows pieces to return off the board when we cycle through the move list 
                 takenWhitePiece.Add(ocp);
             }
 
@@ -771,14 +777,13 @@ public class Chessboard : MonoBehaviour
                 }
 
                 pieces[ocp.currentX, ocp.currentY] = null;
-                ocp.SetScale(Vector3.one * takeSize);
-                Vector3 offBoardPosition = new Vector3(-2 * tileSize, yOffset, 9 * tileSize)
+                Vector3 offBoardPosition = new Vector3(-2 * tileSize, yOffset, 8 * tileSize)
                                            - bounds
                                            + new Vector3(tileSize / 2, 0, tileSize / 2)
-                                           + (Vector3.back * takeSpace) * takenBlackPiece.Count;
+                                           + (Vector3.back * takeSpace) * (takenBlackPiece.Count);
                 ocp.SetPosition(offBoardPosition);
+                ocp.SetScale(Vector3.one * takeSize);
                 move.OffBoardPosition = offBoardPosition;
-                move.TakenPieceIndex = takenBlackPiece.Count - 1;
                 takenBlackPiece.Add(ocp);
             }
         }
@@ -820,10 +825,10 @@ public class Chessboard : MonoBehaviour
         public Vector3? OffBoardPosition; //may be unnecessary, check later
         public SpecialMove? SpecialMoveType;
     }
-
+    
+    //Move History logic
     public void MoveBack()
     {
-
         if (moveIndex < 0)
         {
             return; // No move to go back to
@@ -973,9 +978,3 @@ public class Chessboard : MonoBehaviour
         }
     }
 }
-
-
-
-
-    
-    
