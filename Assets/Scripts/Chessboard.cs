@@ -798,8 +798,8 @@ public class Chessboard : MonoBehaviour
         moveHistory.Add(move);
         moveIndex = moveHistory.Count - 1;
         //rotate camera on move
-        Thread.Sleep(50);
-        currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 180);
+        //Thread.Sleep(50);
+        //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
 
         ProcessSpecialMoves();
         switch (CheckForCheckmate())
