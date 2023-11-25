@@ -58,6 +58,8 @@ public class Chessboard : MonoBehaviour
         public Piece TakenPiece;
         public Vector3? OffBoardPosition; //may be unnecessary, check later
         public SpecialMove? SpecialMoveType;
+        public Piece CurrentPromote;
+        public Piece CurrentPawn;
     }
 
     private Piece[,] pieces; //x,y array
@@ -76,8 +78,8 @@ public class Chessboard : MonoBehaviour
     private int moveIndex = -1;
     private SpecialMove specialMove;
     private List<Move> moveHistory = new List<Move>();
-    public Piece originalPiece; //TODO: convert into stack to handle multiple promotions
-    public Piece promotedPiece;
+    private Stack<Piece> originalPieces = new Stack<Piece>();
+    private Stack<Piece> promotedPieces = new Stack<Piece>();
 
 
     private void Awake()
@@ -492,48 +494,53 @@ public class Chessboard : MonoBehaviour
         {
             Vector2Int[] lastMove = moveList[^1];
             Piece pawn = pieces[lastMove[1].x, lastMove[1].y];
-            originalPiece = pawn;
-            promotedPiece = null;
+            originalPieces.Push(pawn); 
+            
 
             if (pawn.type == PieceType.Pawn)
             {
                 if (pawn.team == 0 && lastMove[1].y == 7) //black promote
                 {
+                    blackPromotion.SetActive(true);
                     buttonBlackQueen.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Queen, 0);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        var currentPromote = SpawnSinglePiece(PieceType.Queen, 0);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
                         pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
+                        promotedPieces.Push(currentPromote);
                     });
                     buttonBlackRook.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Rook, 0);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Rook, 0);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
+                        promotedPieces.Push(currentPromote);
                     });
                     buttonBlackBishop.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Bishop, 0);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);;
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Bishop, 0);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
+                        promotedPieces.Push(currentPromote);
                     });
                     buttonBlackKnight.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Knight, 0);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Knight, 0);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
+                        promotedPieces.Push(currentPromote);
                     });
                 }
 
@@ -543,38 +550,42 @@ public class Chessboard : MonoBehaviour
 
                     buttonWhiteQueen.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Queen, 1);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Queen, 1);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        promotedPieces.Push(currentPromote);
                         whitePromotion.SetActive(false);
                     });
                     buttonWhiteRook.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Rook, 1);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Rook, 1);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        promotedPieces.Push(currentPromote);
                         whitePromotion.SetActive(false);
                     });
                     buttonWhiteBishop.onClick.AddListener(() =>
                     {
-                        promotedPiece = SpawnSinglePiece(PieceType.Bishop, 1);
-                        promotedPiece.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Bishop, 1);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        promotedPieces.Push(currentPromote);
                         whitePromotion.SetActive(false);
                     });
                     buttonWhiteKnight.onClick.AddListener(() =>
                     {
-                        Piece promotedKnight = SpawnSinglePiece(PieceType.Knight, 1);
-                        promotedKnight.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
-                        pieces[lastMove[1].x, lastMove[1].y] = promotedPiece;
+                        var currentPromote = SpawnSinglePiece(PieceType.Knight, 1);
+                        currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
+                        pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                        promotedPieces.Push(currentPromote);
                         whitePromotion.SetActive(false);
                     });
 
@@ -906,26 +917,32 @@ public class Chessboard : MonoBehaviour
                 break;
 
             case SpecialMove.Promotion:
-                // If the move was a promotion, downgrade the piece
-                // First, remove the promoted piece
-                promotedPiece.gameObject.SetActive(false);
-
-                // Restore the taken piece, if there was one
-                if (move.TakenPiece != null)
+                // Only proceed if there are pieces to undo the promotion of
+                if (originalPieces.Count > 0 && promotedPieces.Count > 0)
                 {
-                    move.TakenPiece.transform.position =
-                        move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
-                    move.TakenPiece.SetScale(Vector3.one * takeSize);
-                    move.TakenPiece.gameObject.SetActive(true); // Make the taken piece active again
-                }
+                    move.CurrentPawn = originalPieces.Pop();
+                    move.CurrentPromote = promotedPieces.Pop();
 
-                // Undo the move
-                pieces[move.StartPosition.x, move.StartPosition.y] = originalPiece;
-                originalPiece.gameObject.SetActive(true);
-                pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
-                PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                if (move.TakenPiece != null)
-                    PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                    // If the move was a promotion, downgrade the piece
+                    // First, remove the promoted piece
+                    move.CurrentPromote.gameObject.SetActive(false);
+
+                    // Restore the taken piece, if there was one
+                    if (move.TakenPiece != null)
+                    {
+                        move.TakenPiece.transform.position = move.OffBoardPosition.Value;
+                        move.TakenPiece.SetScale(Vector3.one * takeSize);
+                        move.TakenPiece.gameObject.SetActive(true); 
+                    }
+
+                    // Undo the move
+                    pieces[move.StartPosition.x, move.StartPosition.y] = move.CurrentPawn;
+                    move.CurrentPawn.gameObject.SetActive(true);
+                    pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
+                    PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+                    if (move.TakenPiece != null)
+                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                }
                 break;
 
             case SpecialMove.None:
@@ -996,7 +1013,7 @@ public class Chessboard : MonoBehaviour
                 break;
 
             case SpecialMove.Promotion:
-                //if we have taken into promote, remove the taken piece
+                // if we have taken into promote, remove the taken piece
                 if (move.TakenPiece != null)
                 {
                     if (move.TakenPiece.team == 0) // black team
@@ -1021,11 +1038,13 @@ public class Chessboard : MonoBehaviour
                     }
                 }
 
-                originalPiece.gameObject.SetActive(false);
-                pieces[move.EndPosition.x, move.EndPosition.y] = promotedPiece;
-                promotedPiece.gameObject.SetActive(true);
+                move.CurrentPawn.gameObject.SetActive(false);
+                pieces[move.EndPosition.x, move.EndPosition.y] = move.CurrentPromote;
+                move.CurrentPromote.gameObject.SetActive(true);
                 PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
                 PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+                promotedPieces.Push(move.CurrentPromote);
+                originalPieces.Push(move.CurrentPawn);
 
                 break;
 
