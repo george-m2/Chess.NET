@@ -103,6 +103,11 @@ public class Chessboard : MonoBehaviour
             return;
         }
 
+        if (UIManager.ResignPanel.gameObject.activeSelf)
+        {
+            return;
+        }
+
         var ray = currentCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit info, 100, LayerMask.GetMask("Tile", "Hover", "Highlight")))
@@ -113,7 +118,6 @@ public class Chessboard : MonoBehaviour
                 {
                     UIManager.StartCoroutine(UIManager.ShowAndHide(alertPanel, 1.0f));
                 }
-
                 return;
             }
 
