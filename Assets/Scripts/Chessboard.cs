@@ -873,17 +873,18 @@ public class Chessboard : MonoBehaviour
                     pieces[5, move.EndPosition.y] = null;
                 }
 
-                if (move.TakenPiece != null)
-                {
-                    move.TakenPiece.transform.position =
-                        move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
-                    move.TakenPiece.SetScale(Vector3.one * takeSize);
-                }
-
                 // Undo the move
                 pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
                 pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
                 PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+                if (move.TakenPiece != null)
+                {
+                    PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                    if (move.TakenPiece.team == 0)
+                        takenWhitePiece.Remove(move.TakenPiece);
+                    else
+                        takenBlackPiece.Remove(move.TakenPiece);
+                }
                 break;
 
             case SpecialMove.EnPassant:
@@ -901,10 +902,6 @@ public class Chessboard : MonoBehaviour
                 if (move.TakenPiece != null)
                 {
                     move.TakenPiece.gameObject.SetActive(true);
-                }
-
-                if (move.TakenPiece != null)
-                {
                     move.TakenPiece.transform.position =
                         move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
                     move.TakenPiece.SetScale(Vector3.one * takeSize);
@@ -914,6 +911,14 @@ public class Chessboard : MonoBehaviour
                 pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
                 pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
                 PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+                if (move.TakenPiece != null)
+                {
+                    PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                    if (move.TakenPiece.team == 0)
+                        takenWhitePiece.Remove(move.TakenPiece);
+                    else
+                        takenBlackPiece.Remove(move.TakenPiece);
+                }
                 break;
 
             case SpecialMove.Promotion:
@@ -941,7 +946,13 @@ public class Chessboard : MonoBehaviour
                     pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
                     PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
                     if (move.TakenPiece != null)
+                    {
                         PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                        if (move.TakenPiece.team == 0)
+                            takenWhitePiece.Remove(move.TakenPiece);
+                        else
+                            takenBlackPiece.Remove(move.TakenPiece);
+                    }
                 }
                 break;
 
@@ -958,11 +969,16 @@ public class Chessboard : MonoBehaviour
                 pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
                 pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
                 PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                if(move.TakenPiece != null)
+                if (move.TakenPiece != null)
+                {
                     PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                    if (move.TakenPiece.team == 0)
+                        takenWhitePiece.Remove(move.TakenPiece);
+                    else
+                        takenBlackPiece.Remove(move.TakenPiece);
+                }
                 break;
         }
-
         moveIndex--;
     }
 
