@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading;
 using Unity.VisualScripting;
+using UnityEngine.Serialization;
 
 public enum SpecialMove
 {
@@ -80,6 +81,9 @@ public class Chessboard : MonoBehaviour
     private List<Move> moveHistory = new List<Move>();
     private Stack<Piece> originalPieces = new Stack<Piece>();
     private Stack<Piece> promotedPieces = new Stack<Piece>();
+    public static int NoOfGamesPlayedInSession = 1;
+    public static string Winner = "Game incomplete";
+
 
 
     private void Awake()
@@ -93,6 +97,7 @@ public class Chessboard : MonoBehaviour
         buttonForward.onClick.AddListener(MoveForward);
         SpawnAllPieces();
         PositionAllPieces();
+        
     }
 
     private void Update()
@@ -352,12 +357,22 @@ public class Chessboard : MonoBehaviour
 
     private void DisplayWin(int winningTeam)
     {
-        if (winningTeam == 0 || winningTeam == 1)
-            audio.PlayOneShot(checkMateSfx, 1F);
-
-        else if (winningTeam == 2)
-            audio.PlayOneShot(staleMateSfx, 1F);
-
+        switch (winningTeam)
+        {
+            case 0:
+                audio.PlayOneShot(checkMateSfx, 1F);
+                Winner = "Black";
+                break;
+            case 1:
+                audio.PlayOneShot(checkMateSfx, 1F);
+                Winner = "White";
+                break;
+            case 2:
+                audio.PlayOneShot(staleMateSfx, 1F);
+                Winner = "Stalemate";
+                break;
+        }
+        
         victoryScreen.SetActive(true);
         victoryScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
     }
@@ -368,6 +383,7 @@ public class Chessboard : MonoBehaviour
         currentlyDragging = null;
         availableMoves.Clear();
         moveList.Clear();
+        NoOfGamesPlayedInSession++;
 
         //UI Reset
         victoryScreen.transform.GetChild(2).gameObject.SetActive(false);
@@ -1086,5 +1102,10 @@ public class Chessboard : MonoBehaviour
                 PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
                 break;
         }
+    }
+    public List<Vector2Int[]> GetClonedMoveList()
+    {
+        List<Vector2Int[]> clonedMoveList = new List<Vector2Int[]>(moveList);
+        return clonedMoveList;
     }
 }
