@@ -118,7 +118,6 @@ public class Chessboard : MonoBehaviour
                 {
                     UIManager.StartCoroutine(UIManager.ShowAndHide(alertPanel, 1.0f));
                 }
-
                 return;
             }
 
@@ -202,7 +201,9 @@ public class Chessboard : MonoBehaviour
     }
 
     //board generation
-    private void GenerateAllTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
+    private void
+        GenerateAllTiles(float tileSize, int tileSizeX,
+            int tileSizeY) //defines the size of the board, and vertical/horizontal length 
     {
         yOffset += transform.position.y;
         bounds = new Vector3((tileSizeX / 2) * tileSize, 0, (tileSizeX / 2) * tileSize) + boardCenter;
@@ -497,8 +498,8 @@ public class Chessboard : MonoBehaviour
         {
             Vector2Int[] lastMove = moveList[^1];
             Piece pawn = pieces[lastMove[1].x, lastMove[1].y];
-            originalPieces.Push(pawn);
-
+            originalPieces.Push(pawn); 
+            
 
             if (pawn.type == PieceType.Pawn)
             {
@@ -509,7 +510,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Queen, 0);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
@@ -519,7 +520,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Rook, 0);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
@@ -529,7 +530,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Bishop, 0);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
@@ -539,7 +540,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Knight, 0);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         blackPromotion.SetActive(false);
@@ -555,7 +556,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Queen, 1);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         promotedPieces.Push(currentPromote);
@@ -565,7 +566,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Rook, 1);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         promotedPieces.Push(currentPromote);
@@ -575,7 +576,7 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Bishop, 1);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         promotedPieces.Push(currentPromote);
@@ -585,12 +586,13 @@ public class Chessboard : MonoBehaviour
                     {
                         var currentPromote = SpawnSinglePiece(PieceType.Knight, 1);
                         currentPromote.transform.position = pieces[lastMove[1].x, lastMove[1].y].transform.position;
-                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
+                        pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);                        
                         pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                         PositionSinglePiece(lastMove[1].x, lastMove[1].y);
                         promotedPieces.Push(currentPromote);
                         whitePromotion.SetActive(false);
                     });
+
                 }
             }
         }
@@ -846,7 +848,7 @@ public class Chessboard : MonoBehaviour
     }
 
 
-    //move history logic
+    //Move History logic
     public void MoveBack()
     {
         if (moveIndex < 0)
@@ -887,7 +889,6 @@ public class Chessboard : MonoBehaviour
                     else
                         takenBlackPiece.Remove(move.TakenPiece);
                 }
-
                 break;
 
             case SpecialMove.EnPassant:
@@ -896,20 +897,19 @@ public class Chessboard : MonoBehaviour
                 {
                     pieces[move.EndPosition.x, move.EndPosition.y - 1] = move.TakenPiece;
                     PositionSinglePiece(move.EndPosition.x, move.EndPosition.y - 1);
+
                 }
                 else // black team
                 {
                     pieces[move.EndPosition.x, move.EndPosition.y + 1] = move.TakenPiece;
                     PositionSinglePiece(move.EndPosition.x, move.EndPosition.y + 1);
                 }
-
-                move.TakenPiece.transform.position =
-                    move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
+                move.TakenPiece.transform.position = move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
                 move.TakenPiece.SetScale(Vector3.one * takeSize);
-
+                
                 if (move.TakenPiece.team == 0)
                     takenWhitePiece.Remove(move.TakenPiece);
-                else
+                else 
                     takenBlackPiece.Remove(move.TakenPiece);
                 break;
 
@@ -929,7 +929,7 @@ public class Chessboard : MonoBehaviour
                     {
                         move.TakenPiece.transform.position = move.OffBoardPosition.Value;
                         move.TakenPiece.SetScale(Vector3.one * takeSize);
-                        move.TakenPiece.gameObject.SetActive(true);
+                        move.TakenPiece.gameObject.SetActive(true); 
                     }
 
                     // Undo the move
@@ -946,7 +946,6 @@ public class Chessboard : MonoBehaviour
                             takenBlackPiece.Remove(move.TakenPiece);
                     }
                 }
-
                 break;
 
             case SpecialMove.None:
@@ -970,10 +969,8 @@ public class Chessboard : MonoBehaviour
                     else
                         takenBlackPiece.Remove(move.TakenPiece);
                 }
-
                 break;
         }
-
         moveIndex--;
     }
 
@@ -1084,17 +1081,10 @@ public class Chessboard : MonoBehaviour
                         takenBlackPiece.Add(move.TakenPiece); // update the list
                     }
                 }
-
+                
                 pieces[move.EndPosition.x, move.EndPosition.y] = move.Piece;
                 PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
                 break;
         }
-    }
-
-    //move list public method for pgn
-    public List<Vector2Int[]> GetMoveList()
-    {
-        List<Vector2Int[]> moveListCopy = new List<Vector2Int[]>(moveList);
-        return moveListCopy;
     }
 }
