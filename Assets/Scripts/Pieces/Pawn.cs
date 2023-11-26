@@ -10,27 +10,27 @@ public class Pawn : Piece
         int direction = (team == 0) ? 1 : -1; //up if white, down if black
 
         //one in front
-        if (board[currentX, currentY + direction] == null)
+        if (currentY + direction >= 0 && currentY + direction < tileCountY && board[currentX, currentY + direction] == null)
             n.Add(new Vector2Int(currentX, currentY + direction));
 
         //starting two in front
 
-        if (board[currentX, currentY + direction] == null)
+        if (currentY + direction >= 0 && currentY + direction < tileCountY && board[currentX, currentY + direction] == null)
         {
             //white
-            if (team == 0 && currentY == 1 && board[currentX, currentY + (direction * 2)] == null)
+            if (team == 0 && currentY == 1 && currentY + (direction * 2) < tileCountY && board[currentX, currentY + (direction * 2)] == null)
                 n.Add(new Vector2Int(currentX, currentY + (direction * 2)));
             //black
-            if (team == 1 && currentY == 6 && board[currentX, currentY + (direction * 2)] == null)
+            if (team == 1 && currentY == 6 && currentY + (direction * 2) >= 0 && board[currentX, currentY + (direction * 2)] == null)
                 n.Add(new Vector2Int(currentX, currentY + (direction * 2)));
         }
 
         //kill move
-        if (currentX < tileCountX - 1)
+        if (currentX < tileCountX - 1 && currentY + direction >= 0 && currentY + direction < tileCountY)
             if (board[currentX + 1, currentY + direction] != null &&
                 board[currentX + 1, currentY + direction].team != team)
                 n.Add(new Vector2Int(currentX + 1, currentY + direction));
-        if (currentX > 0)
+        if (currentX > 0 && currentY + direction >= 0 && currentY + direction < tileCountY)
             if (board[currentX - 1, currentY + direction] != null &&
                 board[currentX - 1, currentY + direction].team != team)
                 n.Add(new Vector2Int(currentX - 1, currentY + direction));
