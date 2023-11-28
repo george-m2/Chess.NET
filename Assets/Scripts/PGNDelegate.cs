@@ -58,7 +58,7 @@ private Chessboard chessboard;
 
         var pgn = pgnBuilder.ToString();
         Debug.Log(pgn);
-        System.IO.File.WriteAllText(@"/Users/george/Downloads/pgn.txt", pgn);
+        System.IO.File.WriteAllText(@"pgn.txt", pgn);
     }
     
 }
