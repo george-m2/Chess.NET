@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Chessboard;
 using static PGNExporter;
@@ -31,7 +32,6 @@ public class UIManager : MonoBehaviour
         pgnExporter = FindObjectOfType<PGNExporter>();
         ResignButton.onClick.AddListener(ShowResignPanel);
         exportPGNButton.onClick.AddListener(pgnExporter.ExportToPGN);
-        
     }
 
     private void ShowResignPanel()

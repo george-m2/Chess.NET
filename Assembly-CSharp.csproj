@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets/Scripts/Pieces/Knight.cs" />
      <Compile Include="Assets/Scripts/Chessboard.cs" />
+     <Compile Include="Assets/Scripts/MainMenuUIManager.cs" />
      <Compile Include="Assets/Scripts/Pieces/Pawn.cs" />
      <Compile Include="Assets/Scripts/Pieces/King.cs" />
      <Compile Include="Assets/Scripts/PGNDelegate.cs" />
@@ -62,7 +63,6 @@
      <Folder Include="Assets/UI/TextMesh Pro/Sprites" />
      <Folder Include="Assets/UI/src/Rounded Corner Asset" />
      <Folder Include="Assets/UI/TextMesh Pro/Resources/Sprite Assets" />
-     <Folder Include="Assets/Scenes/SampleScene" />
      <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
      <Folder Include="Assets/UI/TextMesh Pro/Resources/Fonts &amp; Materials" />
      <Folder Include="Assets/Scripts" />
