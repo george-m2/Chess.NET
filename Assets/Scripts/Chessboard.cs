@@ -383,6 +383,10 @@ public class Chessboard : MonoBehaviour
         currentlyDragging = null;
         availableMoves.Clear();
         moveList.Clear();
+        moveIndex = -1;
+        moveHistory.Clear();
+        promotedPieces.Clear();
+        originalPieces.Clear();
         NoOfGamesPlayedInSession++;
 
         //UI Reset
