@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -20,45 +21,55 @@ private Chessboard chessboard;
         return $"{file}{rank}";
     }
     
-    public void ExportToPGN()
+    public int ExportToPGN()
     {
-        var moveList = CloneMoveList();
-        var gamesPlayed = Chessboard.NoOfGamesPlayedInSession;
-        var winner = Chessboard.Winner;
-        var pgnBuilder = new StringBuilder();
-        
-        // PGN header
-        pgnBuilder.AppendLine("[Event \"Chess.NET\"]");
-        pgnBuilder.AppendLine("[Site \"" + SystemInfo.deviceName + "\"]");
-        pgnBuilder.AppendLine("[Date \"" + System.DateTime.Now.ToString("yyyy.MM.dd") + "\"]");
-        pgnBuilder.AppendLine("[Round \"" + gamesPlayed + "\"]");
-        pgnBuilder.AppendLine("[White \"Player1\"]");
-        pgnBuilder.AppendLine("[Black \"Player2\"]");
-        pgnBuilder.AppendLine("[Result \"" + winner + "\"]");
-
-        // PGN moves
-        StringBuilder movesBuilder = new StringBuilder();
-        for (int i = 0; i < moveList.Count; i++)
+        try
         {
-            if (i % 2 == 0)
+            var moveList = CloneMoveList();
+            var gamesPlayed = Chessboard.NoOfGamesPlayedInSession;
+            var winner = Chessboard.Winner;
+            var pgnBuilder = new StringBuilder();
+
+            // PGN header
+            pgnBuilder.AppendLine("[Event \"Chess.NET\"]");
+            pgnBuilder.AppendLine("[Site \"" + SystemInfo.deviceName + "\"]");
+            pgnBuilder.AppendLine("[Date \"" + System.DateTime.Now.ToString("yyyy.MM.dd") + "\"]");
+            pgnBuilder.AppendLine("[Round \"" + gamesPlayed + "\"]");
+            pgnBuilder.AppendLine("[White \"Player1\"]");
+            pgnBuilder.AppendLine("[Black \"Player2\"]");
+            pgnBuilder.AppendLine("[Result \"" + winner + "\"]");
+
+            // PGN moves
+            StringBuilder movesBuilder = new StringBuilder();
+            for (int i = 0; i < moveList.Count; i++)
             {
-                movesBuilder.Append((i / 2) + 1 + ". ");
+                if (i % 2 == 0)
+                {
+                    movesBuilder.Append((i / 2) + 1 + ". ");
+                }
+
+                // Iterate through each Vector2Int in the array
+                foreach (Vector2Int move in moveList[i])
+                {
+                    // Convert Vector2Int to PGN notation
+                    string pgnMove = ConvertToPGN(move);
+                    movesBuilder.Append(pgnMove + " ");
+                }
             }
 
-            // Iterate through each Vector2Int in the array
-            foreach (Vector2Int move in moveList[i])
-            {
-                // Convert Vector2Int to PGN notation
-                string pgnMove = ConvertToPGN(move);
-                movesBuilder.Append(pgnMove + " ");
-            }
+            pgnBuilder.AppendLine(movesBuilder.ToString().Trim());
+
+            var pgn = pgnBuilder.ToString();
+            Debug.Log(pgn);
+            System.IO.File.WriteAllText(@"pgn.txt", pgn);
+
+            return 0; // Success
         }
-
-        pgnBuilder.AppendLine(movesBuilder.ToString().Trim());
-
-        var pgn = pgnBuilder.ToString();
-        Debug.Log(pgn);
-        System.IO.File.WriteAllText(@"pgn.txt", pgn);
+        catch (Exception ex)
+        {
+            Debug.LogError("Failed to export PGN: " + ex.Message);
+            return -1; // Failure
+        }
     }
     
 }

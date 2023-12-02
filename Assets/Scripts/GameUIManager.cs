@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button yesResign;
     [SerializeField] public Button noResign;
     [SerializeField] public Button exportPGNButton;
+    [SerializeField] public Sprite tick;
+    [SerializeField] public Sprite exportIcon;
     
     Chessboard chessboard;
     PGNExporter pgnExporter;
@@ -25,13 +27,22 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         panel.SetActive(false);
     }
+    
+    public IEnumerator TickExportButton(float delay)
+    {
+        exportPGNButton.interactable = false; // Disable the button
+        exportPGNButton.GetComponent<Image>().sprite = tick; // Change the button image to tick
+        yield return new WaitForSeconds(delay);
+        exportPGNButton.GetComponent<Image>().sprite = exportIcon; // Change the button image back to exportIcon
+        exportPGNButton.interactable = true; // Enable the button
+    }
 
     private void Awake()
     {
         chessboard = FindObjectOfType<Chessboard>();
         pgnExporter = FindObjectOfType<PGNExporter>();
         ResignButton.onClick.AddListener(ShowResignPanel);
-        exportPGNButton.onClick.AddListener(pgnExporter.ExportToPGN);
+        exportPGNButton.onClick.AddListener(ExportHandler);
     }
 
     private void ShowResignPanel()
@@ -44,6 +55,15 @@ public class UIManager : MonoBehaviour
             ResignPanel.SetActive(false);
         });
         noResign.onClick.AddListener(() => ResignPanel.SetActive(false));
+    }
+
+    private void ExportHandler()
+    {
+        var errcode = pgnExporter.ExportToPGN();
+        if (errcode == 0)
+        {
+            StartCoroutine(TickExportButton(1.5f));
+        }
     }
     
 }
