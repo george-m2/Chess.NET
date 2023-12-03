@@ -16,7 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button exportPGNButton;
     [SerializeField] public Sprite tick;
     [SerializeField] public Sprite exportIcon;
-    
+
     Chessboard chessboard;
     PGNExporter pgnExporter;
 
@@ -27,13 +27,13 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         panel.SetActive(false);
     }
-    
+
     public IEnumerator TickExportButton(float delay)
     {
         exportPGNButton.interactable = false; // Disable the button
-        exportPGNButton.GetComponent<Image>().sprite = tick; // Change the button image to tick
+        exportPGNButton.GetComponent<Image>().sprite = tick;
         yield return new WaitForSeconds(delay);
-        exportPGNButton.GetComponent<Image>().sprite = exportIcon; // Change the button image back to exportIcon
+        exportPGNButton.GetComponent<Image>().sprite = exportIcon;
         exportPGNButton.interactable = true; // Enable the button
     }
 
@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour
     {
         ResignPanel.SetActive(true);
         ResignPanel.transform.GetChild(0).gameObject.SetActive(true);
-        yesResign.onClick.AddListener(() => 
+        yesResign.onClick.AddListener(() =>
         {
             chessboard.Restart();
             ResignPanel.SetActive(false);
@@ -65,6 +65,4 @@ public class UIManager : MonoBehaviour
             StartCoroutine(TickExportButton(1.5f));
         }
     }
-    
 }
-

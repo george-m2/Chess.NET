@@ -63,7 +63,7 @@ public class Chessboard : MonoBehaviour
         public Piece CurrentPawn;
     }
 
-    private Piece[,] pieces; //x,y array
+    internal Piece[,] pieces; //x,y array. Automatic properties needed for PGNExporter
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
@@ -75,12 +75,13 @@ public class Chessboard : MonoBehaviour
     private Piece currentlyDragging;
     private List<Vector2Int> availableMoves = new();
     private bool isWhiteTurn = true;
+    public bool isCapture = false; //used to add "x" notation to PGN file
     private List<Vector2Int[]> moveList = new();
     private int moveIndex = -1;
     private SpecialMove specialMove;
-    private List<Move> moveHistory = new List<Move>();
-    private Stack<Piece> originalPieces = new Stack<Piece>();
-    private Stack<Piece> promotedPieces = new Stack<Piece>();
+    internal List<Move> moveHistory = new List<Move>();
+    public Stack<Piece> originalPieces = new Stack<Piece>();
+    public Stack<Piece> promotedPieces = new Stack<Piece>();
     public static int NoOfGamesPlayedInSession = 1;
     public static string Winner = "Game incomplete";
 
@@ -819,6 +820,7 @@ public class Chessboard : MonoBehaviour
                 move.OffBoardPosition =
                     offBoardPosition; //allows pieces to return off the board when we cycle through the move list 
                 takenWhitePiece.Add(ocp);
+                isCapture = true;
             }
 
             else
@@ -837,6 +839,7 @@ public class Chessboard : MonoBehaviour
                 ocp.SetScale(Vector3.one * takeSize);
                 move.OffBoardPosition = offBoardPosition;
                 takenBlackPiece.Add(ocp);
+                isCapture = true;
             }
         }
 
