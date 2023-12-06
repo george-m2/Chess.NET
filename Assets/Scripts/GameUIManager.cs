@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Chessboard;
 using static PGNExporter;
+using TMPro;
+using System.Text.RegularExpressions; //regex
+
 
 public class UIManager : MonoBehaviour
 {
@@ -16,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button exportPGNButton;
     [SerializeField] public Sprite tick;
     [SerializeField] public Sprite exportIcon;
+    [SerializeField] public TMP_Text PGNText;
 
     Chessboard chessboard;
     PGNExporter pgnExporter;
@@ -64,5 +68,15 @@ public class UIManager : MonoBehaviour
         {
             StartCoroutine(TickExportButton(1.5f));
         }
+    }
+    public void UpdatePGNText()
+    {
+        var pgnString = pgnExporter.GeneratePGNString();
+        //remove PGN header
+        //TODO: Add header on export as opposed to removing it every time the text is updated
+        const string headerPattern = @"\[Event "".*?""\]\n\[Site "".*?""\]\n\[Date "".*?""\]\n\[Round "".*?""\]\n\[White "".*?""\]\n\[Black "".*?""\]\n\[Result "".*?""\]\n";
+        pgnString = Regex.Replace(pgnString, headerPattern, "");
+        PGNText.text = pgnString;
+        
     }
 }

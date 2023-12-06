@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Threading;
-using Unity.VisualScripting;
-using UnityEngine.Serialization;
 
 public enum SpecialMove
 {
@@ -50,7 +47,6 @@ public class Chessboard : MonoBehaviour
     public AudioClip checkMateSfx;
     public AudioClip staleMateSfx;
     public UIManager UIManager;
-
     public class Move
     {
         public Vector2Int StartPosition;
@@ -61,6 +57,7 @@ public class Chessboard : MonoBehaviour
         public SpecialMove? SpecialMoveType;
         public Piece CurrentPromote;
         public Piece CurrentPawn;
+        public bool isCapture;
     }
 
     internal Piece[,] pieces; //x,y array. Automatic properties needed for PGNExporter
@@ -802,7 +799,7 @@ public class Chessboard : MonoBehaviour
             {
                 return false;
             }
-
+            move.isCapture = true;
             if (ocp.team == 0)
             {
                 if (ocp.type == PieceType.King)
@@ -820,7 +817,6 @@ public class Chessboard : MonoBehaviour
                 move.OffBoardPosition =
                     offBoardPosition; //allows pieces to return off the board when we cycle through the move list 
                 takenWhitePiece.Add(ocp);
-                isCapture = true;
             }
 
             else
@@ -839,7 +835,6 @@ public class Chessboard : MonoBehaviour
                 ocp.SetScale(Vector3.one * takeSize);
                 move.OffBoardPosition = offBoardPosition;
                 takenBlackPiece.Add(ocp);
-                isCapture = true;
             }
         }
 
@@ -852,6 +847,7 @@ public class Chessboard : MonoBehaviour
         moveList.Add(new[] { previousPosition, new Vector2Int(x, y) });
         moveHistory.Add(move);
         moveIndex = moveHistory.Count - 1;
+        UIManager.UpdatePGNText();
         //rotate camera on move
         //Thread.Sleep(50);
         //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
@@ -866,7 +862,6 @@ public class Chessboard : MonoBehaviour
                 CheckMate(2);
                 break;
         }
-
         return true;
     }
 
