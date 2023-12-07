@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Threading;
-using Unity.VisualScripting;
 
 public enum SpecialMove
 {
@@ -49,7 +47,6 @@ public class Chessboard : MonoBehaviour
     public AudioClip checkMateSfx;
     public AudioClip staleMateSfx;
     public UIManager UIManager;
-
     public class Move
     {
         public Vector2Int StartPosition;
@@ -60,9 +57,10 @@ public class Chessboard : MonoBehaviour
         public SpecialMove? SpecialMoveType;
         public Piece CurrentPromote;
         public Piece CurrentPawn;
+        public bool isCapture;
     }
 
-    private Piece[,] pieces; //x,y array
+    internal Piece[,] pieces; //x,y array. Automatic properties needed for PGNExporter
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
@@ -74,12 +72,16 @@ public class Chessboard : MonoBehaviour
     private Piece currentlyDragging;
     private List<Vector2Int> availableMoves = new();
     private bool isWhiteTurn = true;
+    public bool isCapture = false; //used to add "x" notation to PGN file
     private List<Vector2Int[]> moveList = new();
     private int moveIndex = -1;
     private SpecialMove specialMove;
-    private List<Move> moveHistory = new List<Move>();
-    private Stack<Piece> originalPieces = new Stack<Piece>();
-    private Stack<Piece> promotedPieces = new Stack<Piece>();
+    internal List<Move> moveHistory = new List<Move>();
+    public Stack<Piece> originalPieces = new Stack<Piece>();
+    public Stack<Piece> promotedPieces = new Stack<Piece>();
+    public static int NoOfGamesPlayedInSession = 1;
+    public static string Winner = "Game incomplete";
+
 
 
     private void Awake()
@@ -93,6 +95,7 @@ public class Chessboard : MonoBehaviour
         buttonForward.onClick.AddListener(MoveForward);
         SpawnAllPieces();
         PositionAllPieces();
+        
     }
 
     private void Update()
@@ -352,12 +355,22 @@ public class Chessboard : MonoBehaviour
 
     private void DisplayWin(int winningTeam)
     {
-        if (winningTeam == 0 || winningTeam == 1)
-            audio.PlayOneShot(checkMateSfx, 1F);
-
-        else if (winningTeam == 2)
-            audio.PlayOneShot(staleMateSfx, 1F);
-
+        switch (winningTeam)
+        {
+            case 0:
+                audio.PlayOneShot(checkMateSfx, 1F);
+                Winner = "Black";
+                break;
+            case 1:
+                audio.PlayOneShot(checkMateSfx, 1F);
+                Winner = "White";
+                break;
+            case 2:
+                audio.PlayOneShot(staleMateSfx, 1F);
+                Winner = "Stalemate";
+                break;
+        }
+        
         victoryScreen.SetActive(true);
         victoryScreen.transform.GetChild(winningTeam).gameObject.SetActive(true);
     }
@@ -368,6 +381,11 @@ public class Chessboard : MonoBehaviour
         currentlyDragging = null;
         availableMoves.Clear();
         moveList.Clear();
+        moveIndex = -1;
+        moveHistory.Clear();
+        promotedPieces.Clear();
+        originalPieces.Clear();
+        NoOfGamesPlayedInSession++;
 
         //UI Reset
         victoryScreen.transform.GetChild(2).gameObject.SetActive(false);
@@ -781,7 +799,7 @@ public class Chessboard : MonoBehaviour
             {
                 return false;
             }
-
+            move.isCapture = true;
             if (ocp.team == 0)
             {
                 if (ocp.type == PieceType.King)
@@ -829,6 +847,7 @@ public class Chessboard : MonoBehaviour
         moveList.Add(new[] { previousPosition, new Vector2Int(x, y) });
         moveHistory.Add(move);
         moveIndex = moveHistory.Count - 1;
+        UIManager.UpdatePGNText();
         //rotate camera on move
         //Thread.Sleep(50);
         //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
@@ -843,7 +862,6 @@ public class Chessboard : MonoBehaviour
                 CheckMate(2);
                 break;
         }
-
         return true;
     }
 
@@ -1086,5 +1104,10 @@ public class Chessboard : MonoBehaviour
                 PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
                 break;
         }
+    }
+    public List<Vector2Int[]> GetClonedMoveList()
+    {
+        List<Vector2Int[]> clonedMoveList = new List<Vector2Int[]>(moveList);
+        return clonedMoveList;
     }
 }
