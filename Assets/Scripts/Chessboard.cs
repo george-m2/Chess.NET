@@ -61,8 +61,8 @@ public class Chessboard : MonoBehaviour
     }
 
     internal Piece[,] pieces; //x,y array. Automatic properties needed for PGNExporter
-    internal const int TILE_COUNT_X = 8;
-    internal const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
+    private const int TILE_COUNT_X = 8;
+    private const int TILE_COUNT_Y = 8; //creates constant fall back values of grid size
     private Camera currentCamera; //init Unity Camera class which lets the player see the board 
     private GameObject[,] tiles; //Instantiates the base class for all Unity entities
     private Vector2Int currentHover;
@@ -71,7 +71,8 @@ public class Chessboard : MonoBehaviour
     private Vector3 bounds;
     private Piece currentlyDragging;
     private List<Vector2Int> availableMoves = new();
-    internal bool isWhiteTurn = true;
+    private bool isWhiteTurn = true;
+    public bool isCapture = false; //used to add "x" notation to PGN file
     private List<Vector2Int[]> moveList = new();
     private int moveIndex = -1;
     private SpecialMove specialMove;
@@ -193,9 +194,11 @@ public class Chessboard : MonoBehaviour
         }
 
         if (currentlyDragging)
+
         {
             Plane horizontalPlane = new(Vector3.up, Vector3.up * yOffset);
-            if (horizontalPlane.Raycast(ray, out var distance))
+            float distance;
+            if (horizontalPlane.Raycast(ray, out distance))
                 currentlyDragging.SetPosition(ray.GetPoint(distance) + Vector3.up * dragOffset);
         }
     }
@@ -845,7 +848,6 @@ public class Chessboard : MonoBehaviour
         moveHistory.Add(move);
         moveIndex = moveHistory.Count - 1;
         UIManager.UpdatePGNText();
-        UIManager.UpdateFENText();
         //rotate camera on move
         //Thread.Sleep(50);
         //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
