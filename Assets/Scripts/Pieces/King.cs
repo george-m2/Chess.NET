@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ChessNET;
 using Pieces;
 using UnityEngine;
 
@@ -32,7 +33,8 @@ public class King : Piece
         return moves;
     }
 
-    public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
+    public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList,
+        ref List<Vector2Int> availableMoves)
     {
         var r = SpecialMove.None;
 

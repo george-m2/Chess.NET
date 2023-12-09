@@ -1,13 +1,10 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static Chessboard;
-using static PGNExporter;
 using TMPro;
-using System.Text.RegularExpressions; //regex
+using System.Text.RegularExpressions;
+using ChessNET; //regex
 
 
 public class UIManager : MonoBehaviour

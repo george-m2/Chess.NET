@@ -52,6 +52,7 @@
     <Compile Include="Assets/Scripts/Chessboard.cs" />
     <Compile Include="Assets/Scripts/Pieces/Rook.cs" />
     <Compile Include="Assets/Scripts/Pieces/Queen.cs" />
+    <Compile Include="Assets/Scripts/FENDelegate.cs" />
     <Compile Include="Assets/Scripts/MainMenuUIManager.cs" />
     <Compile Include="Assets/Scripts/Pieces/Bishop.cs" />
     <Compile Include="Assets/Scripts/Pieces/Piece.cs" />
