@@ -52,17 +52,28 @@
     <Compile Include="Assets/Scripts/Chessboard.cs" />
     <Compile Include="Assets/Scripts/Pieces/Rook.cs" />
     <Compile Include="Assets/Scripts/Pieces/Queen.cs" />
-    <Compile Include="Assets/Scripts/FENDelegate.cs" />
     <Compile Include="Assets/Scripts/MainMenuUIManager.cs" />
     <Compile Include="Assets/Scripts/Pieces/Bishop.cs" />
     <Compile Include="Assets/Scripts/Pieces/Piece.cs" />
     <Compile Include="Assets/Scripts/Pieces/Pawn.cs" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Library/PackageCache/com.unity.ext.nunit@1.0.6/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/package.json" />
+    <None Include="Library/PackageCache/com.unity.sysroot.linux-x86_64@2.0.6/package.json" />
+    <None Include="Library/PackageCache/com.unity.burst@1.8.8/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Mobile.cginc" />
+    <None Include="Library/PackageCache/com.unity.mathematics@1.2.6/package.json" />
+    <None Include="Library/PackageCache/com.unity.sysroot@2.0.7/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF SSD.shader" />
+    <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/package.json" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/PackageConversionData.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/ValidationExceptions.json" />
+    <None Include="Library/PackageCache/com.unity.ide.rider@3.0.27/package.json" />
+    <None Include="Library/PackageCache/com.unity.searcher@4.9.2/package.json" />
+    <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/UI/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" />
@@ -72,11 +83,18 @@
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF_SSD.cginc" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_Properties.cginc" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF Internal Editor.shader" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF Overlay.shader" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/PackageConversionData_Assets.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader" />
+    <None Include="Library/PackageCache/com.unity.mathematics@1.2.6/ValidationExceptions.json" />
     <None Include="Assets/UI/TextMesh Pro/Fonts/LiberationSans - OFL.txt" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader" />
+    <None Include="Library/PackageCache/com.unity.burst@1.8.8/Unity.Burst.Unsafe.xml" />
+    <None Include="Library/PackageCache/com.unity.burst@1.8.8/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Sprites/EmojiOne.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Sprite.shader" />
     <Reference Include="UnityEngine">
@@ -697,20 +715,11 @@
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Sysroot.Linux_x86_64">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Sysroot.Linux_x86_64.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Runtime">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Runtime">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Burst.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Burst.dll</HintPath>
     </Reference>
     <Reference Include="Unity.ShaderGraph.Editor">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.ShaderGraph.Editor.dll</HintPath>
@@ -721,41 +730,17 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Rider.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Mathematics.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Mathematics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipeline.Universal.ShaderLibrary">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Toolchain.Macos-arm64-Linux-x86_64">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Toolchain.Macos-arm64-Linux-x86_64.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.SysrootPackage.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.SysrootPackage.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="PPv2URPConverters">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/PPv2URPConverters.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Mathematics">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Searcher.Editor">
-      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.Searcher.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Shaders">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
@@ -765,6 +750,50 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Unity.Sysroot.Linux_x86_64.csproj">
+      <Project>{ad6ac47d-40db-dd5b-2046-edc93a622c35}</Project>
+      <Name>Unity.Sysroot.Linux_x86_64</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Burst.Editor.csproj">
+      <Project>{20baeda0-8d56-cf7e-4c9f-39e4c94be259}</Project>
+      <Name>Unity.Burst.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Burst.csproj">
+      <Project>{b43f43ce-8b4b-a808-014a-ae5cb9c5ae3c}</Project>
+      <Name>Unity.Burst</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Rider.Editor.csproj">
+      <Project>{b1a5fbf4-7ca9-4b9c-fb38-4de447e16a35}</Project>
+      <Name>Unity.Rider.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Mathematics.Editor.csproj">
+      <Project>{833353d8-4f82-a3a3-57c3-d072cfb8a49f}</Project>
+      <Name>Unity.Mathematics.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Toolchain.Macos-arm64-Linux-x86_64.csproj">
+      <Project>{84dcd864-178e-fb35-b2b1-abc3211201d8}</Project>
+      <Name>Unity.Toolchain.Macos-arm64-Linux-x86_64</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.SysrootPackage.Editor.csproj">
+      <Project>{843198d1-50b9-00c9-1299-c36564f7a104}</Project>
+      <Name>Unity.SysrootPackage.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Mathematics.csproj">
+      <Project>{70dde3ab-b96f-5e98-11f7-773ea0ebef07}</Project>
+      <Name>Unity.Mathematics</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.TextMeshPro.csproj">
+      <Project>{7df56541-38bc-6b07-2506-2fbf98b2e3dc}</Project>
+      <Name>Unity.TextMeshPro</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
+      <Project>{7dfb4d5f-0fed-22fb-52bd-b6d112aa265c}</Project>
+      <Name>Unity.TextMeshPro.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Searcher.Editor.csproj">
+      <Project>{bc6b1460-d706-c477-307a-121eace66e65}</Project>
+      <Name>Unity.Searcher.Editor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

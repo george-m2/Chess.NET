@@ -4753,6 +4753,7 @@ MonoBehaviour:
   checkMateSfx: {fileID: 8300000, guid: 62680d5c26cc940c9b60c7118bca89a2, type: 3}
   staleMateSfx: {fileID: 8300000, guid: f32deed7c73fa4324918f7407c8a1d57, type: 3}
   UIManager: {fileID: 1120612202}
+  isWhiteTurn: 1
   isCapture: 0
 --- !u!82 &1797854256
 AudioSource:

@@ -26,8 +26,8 @@ public class PGNExporter : MonoBehaviour
 
     private string ConvertToPGN(Vector2Int position, Piece piece)
     {
-        char file = (char)('a' + position.x);
-        int rank = position.y + 1;
+        char file = (char)('a' + 7 - position.x);
+        int rank = 8 - position.y;
 
         string pieceNotation = piece.type switch
         {
@@ -139,7 +139,7 @@ public class PGNExporter : MonoBehaviour
     {
         var pgn = GeneratePGNString();
         Debug.Log(pgn);
-        System.IO.File.WriteAllText(@"pgn.txt", pgn);
+        System.IO.File.WriteAllText(@"pgn.pgn", pgn);
         if (File.Exists(@"pgn.txt"))
         {
             return 0; // Success

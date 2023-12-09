@@ -82,7 +82,7 @@ namespace ChessNET
         public Stack<Piece> originalPieces = new Stack<Piece>();
         public Stack<Piece> promotedPieces = new Stack<Piece>();
         public static int NoOfGamesPlayedInSession = 1;
-        public static string Winner = "Game incomplete";
+        public static string Winner = "*";
 
 
         private void Awake()
