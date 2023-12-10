@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ChessNET;
 using UnityEngine;
 
 namespace Pieces
@@ -21,6 +22,7 @@ namespace Pieces
         public int currentX;
         public int currentY;
         public PieceType type;
+        public bool hasMoved = false;
 
         private Vector3 desiredPosition;
         private Vector3 desiredScale = Vector3.one;
@@ -59,7 +61,8 @@ namespace Pieces
             return n;
         }
 
-        public virtual SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
+        public virtual SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList,
+            ref List<Vector2Int> availableMoves)
         {
             return SpecialMove.None;
         }

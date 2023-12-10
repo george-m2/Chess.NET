@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ChessNET;
 using Pieces;
 using UnityEngine;
 
@@ -38,7 +39,8 @@ public class Pawn : Piece
         return n;
     }
 
-    public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
+    public override SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList,
+        ref List<Vector2Int> availableMoves)
     {
         int direction = (team == 0) ? 1 : -1; //up if white, down if black
         
