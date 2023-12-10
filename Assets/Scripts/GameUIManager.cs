@@ -3,8 +3,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Text.RegularExpressions;
-using ChessNET; //regex
+using System.Text.RegularExpressions; //regex
+using ChessNET;
+using PGNDelegate; 
 
 
 public class UIManager : MonoBehaviour
