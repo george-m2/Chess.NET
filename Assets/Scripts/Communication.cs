@@ -7,31 +7,57 @@ using PGNDelegate;
 
 namespace Communication
 {
-    public class HelloClient : MonoBehaviour
+    public class Client : MonoBehaviour
     {
-        private HelloRequester _helloRequester;
+        // Singleton pattern to easily access the instance
+        public static Client Instance { get; private set; }
+
+        private RequestSocket _requester;
         private PGNExporter _pgnExporter;
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
 
         private void Start()
         {
             _pgnExporter = FindObjectOfType<PGNExporter>();
-            string pgnString = _pgnExporter.CommunciatePGN(); //thread-safe implementation
-            _helloRequester = new HelloRequester(pgnString);
-            _helloRequester.Start();
-            Debug.Log("Sending PGN");
+            _requester = new RequestSocket();
+            _requester.Connect("tcp://localhost:5555");
+        }
+
+        public void SendPGNUpdate()
+        {
+            string pgnString = _pgnExporter.CommunciatePGN();
+            new Thread(() =>
+            {
+                _requester.SendFrame(pgnString);
+                string message = _requester.ReceiveFrameString();
+                Debug.Log("Received: " + message);
+                // Handle the received best move
+            }).Start();
         }
 
         private void OnDestroy()
         {
-            _helloRequester.Stop();
+            _requester?.Dispose();
         }
     }
 
-    public class HelloRequester : RunAbleThread
+    public class Requester : RunAbleThread
     {
         private readonly string _pgnString;
 
-        public HelloRequester(string pgnString)
+        public Requester(string pgnString)
         {
             _pgnString = pgnString;
         }

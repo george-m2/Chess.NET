@@ -853,6 +853,7 @@ namespace ChessNET
             moveHistory.Add(move);
             moveIndex = moveHistory.Count - 1;
             UIManager.UpdatePGNText();
+            OnMoveMade();
             //rotate camera on move
             //Thread.Sleep(50);
             //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
@@ -870,6 +871,11 @@ namespace ChessNET
 
             cp.hasMoved = true;
             return true;
+        }
+
+        private void OnMoveMade()
+        {
+            Communication.Client.Instance.SendPGNUpdate();
         }
 
 
