@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ChessNET;
 using Pieces;
@@ -12,148 +13,139 @@ namespace PGNDelegate
     {
         private Chessboard chessboard;
         private Chessboard.Move move;
-    
+
         private void Awake()
         {
-            chessboard = FindObjectOfType<Chessboard>();
+            chessboard = FindObjectOfType<Chessboard>() ?? throw new InvalidOperationException("Chessboard not found");
         }
-    
+
         private List<Vector2Int[]> CloneMoveList()
         {
-            var chessboard = GetComponent<Chessboard>();
-            chessboard = FindObjectOfType<Chessboard>();
-            List<Vector2Int[]> clonedMoveList = chessboard.GetClonedMoveList();
-            return clonedMoveList;
+            return chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>();
         }
-    
-        private string ConvertToPGN(Vector2Int position, Piece piece)
+
+        private string ConvertToPGN(Vector2Int position, PieceType piece)
         {
-            char file = (char)('a' + 7 - position.x);
+            // Adjust the file calculation depending on your board's orientation
+            char file = (char)('h' - position.x); // Adjust this line as per your board's orientation
             int rank = 8 - position.y;
-    
-            string pieceNotation = piece.type switch
-            {
-                PieceType.Pawn => "",
-                PieceType.Knight => "N",
-                PieceType.Bishop => "B",
-                PieceType.Rook => "R",
-                PieceType.Queen => "Q",
-                PieceType.King => "K",
-                _ => ""
-            };
-    
-            //was there a capture?
-            string captureNotation = "";
-            if (move.isCapture)
-            {
-                captureNotation = "x";
-            }
-    
-            //was there a special move?
+
+            string pieceNotation = GetPieceNotation(piece);
+            string captureNotation = move.isCapture ? "x" : "";
+            string specialMoveNotation = GetSpecialMoveNotation();
+
+            return $"{pieceNotation}{captureNotation}{file}{rank}{specialMoveNotation}";
+        }
+
+
+        private string GetPieceNotation(PieceType piece) => piece switch
+        {
+            PieceType.Pawn => "",
+            PieceType.Knight => "N",
+            PieceType.Bishop => "B",
+            PieceType.Rook => "R",
+            PieceType.Queen => "Q",
+            PieceType.King => "K",
+            _ => throw new ArgumentOutOfRangeException(nameof(piece), "Invalid piece type")
+        };
+
+        private string GetSpecialMoveNotation()
+        {
             switch (move.SpecialMoveType)
             {
                 case SpecialMove.Castle:
-                    pieceNotation = move.EndPosition.x == 2 ? "O-O-O" : "O-O";
-                    break;
-    
+                    return move.EndPosition.x == 2 ? "O-O-O" : "O-O";
                 case SpecialMove.Promotion:
-                {
-                    var promotionPieceNotation = "";
-    
-                    //stack is LIFO so we need to reverse it to get accurate FEN notation
-                    var reversedPromotedPieces = new Stack<Piece>(new List<Piece>(chessboard.promotedPieces).ToArray());
-                    if (reversedPromotedPieces.Count >
-                        0) //initial promotion will have no promoted pieces, therefore we must check if the stack is empty
-                    {
-                        var promotedPieceType = reversedPromotedPieces.Pop().type;
-    
-                        switch (promotedPieceType)
-                        {
-                            case PieceType.Queen:
-                                promotionPieceNotation = "Q";
-                                break;
-                            case PieceType.Rook:
-                                promotionPieceNotation = "R";
-                                break;
-                            case PieceType.Bishop:
-                                promotionPieceNotation = "B";
-                                break;
-                            case PieceType.Knight:
-                                promotionPieceNotation = "N";
-                                break;
-                        }
-    
-                        return $"{file}{rank}={promotionPieceNotation}";
-                    }
-    
-                    break;
-                }
+                    return GetPromotionNotation();
                 case SpecialMove.None:
-                    break;
+                    return "";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(move.SpecialMoveType), "Invalid special move type");
             }
-    
-            return $"{pieceNotation}{captureNotation}{file}{rank}";
         }
-    
-        public string GeneratePGNString()
+
+        private string GetPromotionNotation()
+        {
+            if (chessboard.promotedPieces.Count == 0)
+            {
+                return "";
+            }
+
+            var promotedPieceType = chessboard.promotedPieces.Peek().type;
+            return "=" + GetPieceNotation(promotedPieceType);
+        }
+
+        public string GeneratePGNString(bool includePGNHeader)
         {
             var moveList = CloneMoveList();
-            var gamesPlayed = Chessboard.NoOfGamesPlayedInSession;
-            var winner = Chessboard.Winner;
-            var pgnBuilder = new StringBuilder();
-    
-            // PGN header
-            pgnBuilder.AppendLine("[Event \"Chess.NET\"]");
-            pgnBuilder.AppendLine("[Site \"" + SystemInfo.deviceName + "\"]");
-            pgnBuilder.AppendLine("[Date \"" + System.DateTime.Now.ToString("yyyy.MM.dd") + "\"]");
-            pgnBuilder.AppendLine("[Round \"" + gamesPlayed + "\"]");
-            pgnBuilder.AppendLine("[White \"Player1\"]");
-            pgnBuilder.AppendLine("[Black \"Player2\"]");
-            pgnBuilder.AppendLine("[Result \"" + winner + "\"]");
-    
-            // PGN moves
-            StringBuilder movesBuilder = new StringBuilder();
+            StringBuilder pgnBuilder = new StringBuilder();
+
+            if (includePGNHeader)
+            {
+                AppendPGNHeader(pgnBuilder);
+            }
+
+            AppendMoves(pgnBuilder, moveList);
+
+            return pgnBuilder.ToString();
+        }
+
+        private void AppendPGNHeader(StringBuilder builder)
+        {
+            builder.AppendLine("[Event \"Chess.NET\"]");
+            builder.AppendLine($"[Site \"{SystemInfo.deviceName}\"]");
+            builder.AppendLine($"[Date \"{DateTime.Now:yyyy.MM.dd}\"]");
+            builder.AppendLine($"[Round \"{Chessboard.NoOfGamesPlayedInSession}\"]");
+            builder.AppendLine("[White \"Player1\"]");
+            builder.AppendLine("[Black \"Player2\"]");
+            builder.AppendLine($"[Result \"{Chessboard.Winner}\"]");
+        }
+
+        private void AppendMoves(StringBuilder builder, List<Vector2Int[]> moveList)
+        {
             for (int i = 0; i < moveList.Count; i++)
             {
                 if (i % 2 == 0)
                 {
-                    movesBuilder.Append((i / 2) + 1 + ". ");
+                    builder.Append($"{i / 2 + 1}. ");
                 }
-    
-                // Iterate through each move in the array
+
                 move = chessboard.moveHistory[i];
                 foreach (var position in moveList[i])
                 {
-                    var movingPiece = move.Piece;
-    
-                    // Convert Vector2Int to PGN notation
-                    string pgnMove = ConvertToPGN(position, movingPiece);
-                    movesBuilder.Append(pgnMove + " ");
+                    string pgnMove = ConvertToPGN(position, move.Piece.type);
+                    builder.Append($"{pgnMove} ");
                 }
             }
-    
-            pgnBuilder.AppendLine(movesBuilder.ToString().Trim());
-    
-            return pgnBuilder.ToString(); // Return the PGN string
+
+            builder.AppendLine();
         }
-    
+
         public int ExportToPGN()
         {
-            var pgn = GeneratePGNString();
-            Debug.Log(pgn);
-            System.IO.File.WriteAllText(@"pgn.pgn", pgn);
-            if (File.Exists(@"pgn.txt"))
+            try
             {
+                var pgn = GeneratePGNString(true);
+                Debug.Log(pgn);
+                File.WriteAllText("pgn.pgn", pgn);
                 return 0; // Success
             }
-    
-            return 1;
+            catch (Exception ex)
+            {
+                Debug.LogError($"ExportToPGN failed: {ex.Message}");
+                return 1; // Failure
+            }
         }
-        
-        public string CommunciatePGN()
+
+        public string ConvertCurrentMoveToSAN()
         {
-            var pgn = GeneratePGNString();
-            return pgn;
+            var lastMove = chessboard?.moveHistory?.LastOrDefault();
+            if (lastMove == null)
+            {
+                throw new InvalidOperationException("No moves available");
+            }
+
+            return ConvertToPGN(lastMove.EndPosition, lastMove.Piece.type);
         }
     }
 }

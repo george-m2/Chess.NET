@@ -1,5 +1,6 @@
 using System.Threading;
 using AsyncIO;
+using ChessNET;
 using UnityEngine;
 using NetMQ;
 using NetMQ.Sockets;
@@ -37,7 +38,7 @@ namespace Communication
 
         public void SendPGNUpdate()
         {
-            string pgnString = _pgnExporter.CommunciatePGN();
+            string pgnString = _pgnExporter.ConvertCurrentMoveToSAN();
             new Thread(() =>
             {
                 _requester.SendFrame(pgnString);
