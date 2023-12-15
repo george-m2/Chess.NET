@@ -11,31 +11,51 @@ namespace PGNDelegate
 {
     public class PGNExporter : MonoBehaviour
     {
-        private Chessboard chessboard;
-        private Chessboard.Move move;
+        private Chessboard _chessboard;
+        private Chessboard.Move _move;
 
         private void Awake()
         {
-            chessboard = FindObjectOfType<Chessboard>() ?? throw new InvalidOperationException("Chessboard not found");
+            _chessboard = FindObjectOfType<Chessboard>();
         }
 
         private List<Vector2Int[]> CloneMoveList()
         {
-            return chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>();
+            return _chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>();
         }
 
         private string ConvertToPGN(Vector2Int position, PieceType piece)
         {
-            // Adjust the file calculation depending on your board's orientation
-            char file = (char)('h' - position.x); // Adjust this line as per your board's orientation
+            char file = (char)('h' - position.x); 
             int rank = 8 - position.y;
 
             string pieceNotation = GetPieceNotation(piece);
-            string captureNotation = move.isCapture ? "x" : "";
+            string moveNotation = $"{file}{rank}";
+
+            if (_move.isCapture)
+            {
+                if (piece == PieceType.Pawn)
+                {
+                    // For pawn captures, prepend the file of departure
+                    char departureFile = (char)('h' - _move.StartPosition.x);
+                    moveNotation = $"{departureFile}x{moveNotation}";
+                }
+                else
+                {
+                    // For other pieces, simply prepend 'x' to the destination square
+                    moveNotation = $"{pieceNotation}x{moveNotation}";
+                }
+            }
+            else
+            {
+                moveNotation = $"{pieceNotation}{moveNotation}";
+            }
+
             string specialMoveNotation = GetSpecialMoveNotation();
 
-            return $"{pieceNotation}{captureNotation}{file}{rank}{specialMoveNotation}";
+            return $"{moveNotation}{specialMoveNotation}";
         }
+
 
 
         private string GetPieceNotation(PieceType piece) => piece switch
@@ -51,27 +71,27 @@ namespace PGNDelegate
 
         private string GetSpecialMoveNotation()
         {
-            switch (move.SpecialMoveType)
+            switch (_move.SpecialMoveType)
             {
                 case SpecialMove.Castle:
-                    return move.EndPosition.x == 2 ? "O-O-O" : "O-O";
+                    return _move.EndPosition.x == 2 ? "O-O-O" : "O-O";
                 case SpecialMove.Promotion:
                     return GetPromotionNotation();
                 case SpecialMove.None:
                     return "";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(move.SpecialMoveType), "Invalid special move type");
+                    throw new ArgumentOutOfRangeException(nameof(_move.SpecialMoveType), "Invalid special move type");
             }
         }
 
         private string GetPromotionNotation()
         {
-            if (chessboard.promotedPieces.Count == 0)
+            if (_chessboard.promotedPieces.Count == 0)
             {
                 return "";
             }
 
-            var promotedPieceType = chessboard.promotedPieces.Peek().type;
+            var promotedPieceType = _chessboard.promotedPieces.Peek().type;
             return "=" + GetPieceNotation(promotedPieceType);
         }
 
@@ -110,10 +130,10 @@ namespace PGNDelegate
                     builder.Append($"{i / 2 + 1}. ");
                 }
 
-                move = chessboard.moveHistory[i];
+                _move = _chessboard.moveHistory[i];
                 foreach (var position in moveList[i])
                 {
-                    string pgnMove = ConvertToPGN(position, move.Piece.type);
+                    string pgnMove = ConvertToPGN(position, _move.Piece.type);
                     builder.Append($"{pgnMove} ");
                 }
             }
@@ -139,7 +159,7 @@ namespace PGNDelegate
 
         public string ConvertCurrentMoveToSAN()
         {
-            var lastMove = chessboard?.moveHistory?.LastOrDefault();
+            var lastMove = _chessboard?.moveHistory?.LastOrDefault();
             if (lastMove == null)
             {
                 throw new InvalidOperationException("No moves available");
