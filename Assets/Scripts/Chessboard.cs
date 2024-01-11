@@ -528,6 +528,7 @@ namespace ChessNET
                 {
                     if (pawn.team == 0 && lastMove[1].y == 7) //black promote
                     {
+                        //TODO: refactor into a function - this is a mess
                         blackPromotion.SetActive(true);
                         buttonBlackQueen.onClick.AddListener(() =>
                         {
@@ -582,8 +583,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteRook.onClick.AddListener(() =>
                         {
@@ -592,8 +593,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteBishop.onClick.AddListener(() =>
                         {
@@ -602,8 +603,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteKnight.onClick.AddListener(() =>
                         {
@@ -612,8 +613,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                     }
                 }
@@ -852,8 +853,6 @@ namespace ChessNET
             moveList.Add(new[] { previousPosition, new Vector2Int(x, y) });
             moveHistory.Add(move);
             moveIndex = moveHistory.Count - 1;
-            UIManager.UpdatePGNText();
-            OnMoveMade();
             //rotate camera on move
             //Thread.Sleep(50);
             //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
@@ -869,6 +868,8 @@ namespace ChessNET
                     break;
             }
 
+            UIManager.UpdatePGNText();
+            OnMoveMade();
             cp.hasMoved = true;
             return true;
         }
