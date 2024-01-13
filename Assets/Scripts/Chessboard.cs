@@ -154,11 +154,9 @@ namespace ChessNET
                         {
                             currentlyDragging = pieces[hitPosition.x, hitPosition.y];
                             //get list of legal moves
-                            availableMoves =
-                                currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                            availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
                             //get list of special moves
-                            specialMove =
-                                currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
+                            specialMove = currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
                             PreventCheck();
                             HighlightTiles();
                             //highlighted list of legal moves
