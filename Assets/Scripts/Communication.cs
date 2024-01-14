@@ -5,6 +5,7 @@ using UnityEngine;
 using NetMQ;
 using NetMQ.Sockets;
 using PGNDelegate;
+using PimDeWitte.UnityMainThreadDispatcher;
 
 namespace Communication
 {
@@ -35,8 +36,10 @@ namespace Communication
             _requester = new RequestSocket();
             _requester.Connect("tcp://localhost:5555");
         }
+        
+        public delegate void PGNReceivedHandler(string pgnString);
 
-        public void SendPGNUpdate()
+        public void ReceivePgnUpdate(PGNReceivedHandler callback)
         {
             string pgnString = _pgnExporter.ConvertCurrentMoveToSAN();
             new Thread(() =>
@@ -44,9 +47,12 @@ namespace Communication
                 _requester.SendFrame(pgnString);
                 string message = _requester.ReceiveFrameString();
                 Debug.Log("Received: " + message);
-                // Handle the received best move
+
+                // Use Unity's main thread to call the callback method
+                UnityMainThreadDispatcher.Instance().Enqueue(() => callback(message));
             }).Start();
         }
+
 
         private void OnDestroy()
         {

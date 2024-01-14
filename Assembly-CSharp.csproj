@@ -83,6 +83,7 @@
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
+    <None Include="Assets/Scripts/UnityMainThreadDispatcher/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF_SSD.cginc" />
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_Properties.cginc" />
@@ -800,6 +801,10 @@
     <ProjectReference Include="Unity.Searcher.Editor.csproj">
       <Project>{bc6b1460-d706-c477-307a-121eace66e65}</Project>
       <Name>Unity.Searcher.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="PimDeWitte.UnityMainThreadDispatcher.csproj">
+      <Project>{bd1fff5f-ed8a-e4e7-4dc6-080baf8da883}</Project>
+      <Name>PimDeWitte.UnityMainThreadDispatcher</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

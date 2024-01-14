@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Communication;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
@@ -874,9 +875,13 @@ namespace ChessNET
 
         private void OnMoveMade()
         {
-            Communication.Client.Instance.SendPGNUpdate();
+            Client.Instance.ReceivePgnUpdate(HandlePGN);
         }
 
+        public void HandlePGN(string pgn)
+        {
+            Debug.Log(pgn);
+        }
 
         //Move History logic
         public void MoveBack()
