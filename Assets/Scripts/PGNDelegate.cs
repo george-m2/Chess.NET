@@ -26,7 +26,7 @@ namespace PGNDelegate
 
         private string ConvertToPGN(Vector2Int position, PieceType piece)
         {
-            char file = (char)('h' - position.x); 
+            char file = (char)('h' - position.x);
             int rank = 8 - position.y;
 
             string pieceNotation = GetPieceNotation(piece);
@@ -46,7 +46,7 @@ namespace PGNDelegate
                     moveNotation = $"{pieceNotation}x{moveNotation}";
                 }
             }
-            else
+            else if (piece != PieceType.Pawn)
             {
                 moveNotation = $"{pieceNotation}{moveNotation}";
             }
@@ -86,11 +86,6 @@ namespace PGNDelegate
 
         private string GetPromotionNotation()
         {
-            if (_chessboard.promotedPieces.Count == 0)
-            {
-                return "";
-            }
-
             var promotedPieceType = _chessboard.promotedPieces.Peek().type;
             return "=" + GetPieceNotation(promotedPieceType);
         }

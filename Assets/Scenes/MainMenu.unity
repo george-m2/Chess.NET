@@ -890,7 +890,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &547489704
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5240,7 +5240,7 @@ MonoBehaviour:
   resolutionDropdown: {fileID: 130768051}
   backToMenuButton: {fileID: 1994090878}
   settingsButton: {fileID: 259494387}
-  settingsPanel: {fileID: 649945266}
+  settingsPanel: {fileID: 547489703}
   mainMenuPanel: {fileID: 2102524374}
   miniMaxDepthInputField: {fileID: 994681986}
 --- !u!1 &1957997439
@@ -5939,7 +5939,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2102524375
 RectTransform:
   m_ObjectHideFlags: 0
