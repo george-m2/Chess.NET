@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
+
+
 
 public class Menu : MonoBehaviour
 {
@@ -12,11 +15,13 @@ public class Menu : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private TMP_InputField miniMaxDepthInputField;
     
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
     private int currentRefreshRate;
     private int currentResolutionIndex;
+    private int miniMaxDepth = 3; //default minmax depth 
 
     public void LoadScene(string sceneName)
     {
@@ -82,8 +87,38 @@ public class Menu : MonoBehaviour
     {
         QualitySettings.SetQualityLevel(qualityIndex);
     }
-    
+
+    public void SetMiniMaxDepth(int depth)
+    {
+        var miniMaxDepthText = miniMaxDepthInputField.text;
+        miniMaxDepth = int.Parse(miniMaxDepthText);
+        WriteMiniMaxDepthToJSON();
+    }
+    public void WriteMiniMaxDepthToJSON()
+    {
+        try
+        {
+            var depthData = ScriptableObject.CreateInstance<DepthData>();
+            depthData.depth = miniMaxDepth;
+            var json = JsonUtility.ToJson(depthData);
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "settings.json"), json);
+            Debug.Log("Successfully wrote to JSON file");
+        }
+        catch (Exception)
+        {
+            Debug.Log("Error writing to JSON file at " + Path.Combine(Application.persistentDataPath, "settings.json"));
+        }
+    }
 }
+
+//class used to allow Unity JSON methods
+[Serializable]
+public class DepthData: ScriptableObject
+{
+    [SerializeField] public int depth;
+}
+
+
 
 
    
