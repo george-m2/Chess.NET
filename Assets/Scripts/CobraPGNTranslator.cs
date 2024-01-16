@@ -37,13 +37,19 @@ public class CobraPGNTranslator : MonoBehaviour
             Debug.LogError("Invalid SAN format: " + san);
             return (-1, -1);
         }
-        
-        int endX = san[fileIndex] - 'a';
-        int endY = '8' - san[rankIndex];
+
+        // Flipping and rotating the coordinates for file
+        int endX = 7 - (san[fileIndex] - 'a');
+    
+        // Adjusting the rank for the black team (AI)
+        int endY = 7 - (san[rankIndex] - '1');
 
         Debug.Log($"SAN: {san}, endX: {endX}, endY: {endY}");
         return (endX, endY);
     }
+
+
+
 
     private Piece FindPieceToMove(string san, Chessboard board)
     {
