@@ -53,6 +53,7 @@
     <Compile Include="Assets/Scripts/Pieces/Rook.cs" />
     <Compile Include="Assets/Scripts/Pieces/Queen.cs" />
     <Compile Include="Assets/Scripts/MainMenuUIManager.cs" />
+    <Compile Include="Assets/Scripts/CobraPGNTranslator.cs" />
     <Compile Include="Assets/Scripts/Communication.cs" />
     <Compile Include="Assets/Scripts/Pieces/Bishop.cs" />
     <Compile Include="Assets/Scripts/Pieces/Piece.cs" />
@@ -719,6 +720,9 @@
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="NuGetForUnity">
+      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/NuGetForUnity.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>

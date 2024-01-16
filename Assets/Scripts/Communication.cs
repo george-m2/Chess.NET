@@ -48,10 +48,25 @@ namespace Communication
                 string message = _requester.ReceiveFrameString();
                 Debug.Log("Received: " + message);
 
-                // Use Unity's main thread to call the callback method
-                UnityMainThreadDispatcher.Instance().Enqueue(() => callback(message));
+                // Use Unity's main thread to call the callback method and to find the Chessboard
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                {
+                    callback(message);
+
+                    // Process the received move on the main thread
+                    Chessboard chessboard = FindObjectOfType<Chessboard>();
+                    if (chessboard != null)
+                    {
+                        chessboard.ProcessReceivedMove(message);
+                    }
+                    else
+                    {
+                        Debug.LogError("Chessboard component not found.");
+                    }
+                });
             }).Start();
         }
+
 
 
         private void OnDestroy()

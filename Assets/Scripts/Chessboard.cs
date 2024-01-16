@@ -779,7 +779,7 @@ namespace ChessNET
             return false;
         }
 
-        private bool MoveTo(Piece cp, int x, int y)
+        public bool MoveTo(Piece cp, int x, int y)
         {
             if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
                 return false;
@@ -883,6 +883,24 @@ namespace ChessNET
             Debug.Log(pgn);
         }
 
+        public void ProcessReceivedMove(string sanMove)
+        {
+            CobraPGNTranslator translator = FindObjectOfType<CobraPGNTranslator>();
+            if (translator != null)
+            {
+                bool moveSuccess = translator.TranslateSANAndMove(sanMove, this, isWhiteTurn);
+                if (!moveSuccess)
+                {
+                    Debug.LogError("Failed to translate or execute move: " + sanMove);
+                }
+            }
+            else
+            {
+                Debug.LogError("CobraPGNTranslator component not found.");
+            }
+        }
+
+        //********************//
         //Move History logic
         public void MoveBack()
         {
