@@ -880,8 +880,13 @@ namespace ChessNET
 
         private void OnMoveMade()
         {
-            Client.Instance.ReceivePgnUpdate(HandlePGN);
+            // Currently, AI is always black
+            if (!isWhiteTurn)
+            {
+                Client.Instance.ReceivePgnUpdate(HandlePGN);
+            }
         }
+
 
         public void HandlePGN(string pgn)
         {

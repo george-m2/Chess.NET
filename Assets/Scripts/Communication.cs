@@ -16,9 +16,11 @@ namespace Communication
 
         private RequestSocket _requester;
         private PGNExporter _pgnExporter;
+        private Chessboard _chessboard;
 
         private void Awake()
         {
+            _chessboard = FindObjectOfType<Chessboard>();
             if (Instance == null)
             {
                 Instance = this;
@@ -51,13 +53,18 @@ namespace Communication
                 // Use Unity's main thread to call the callback method and to find the Chessboard
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
-                    callback(message);
-
-                    // Process the received move on the main thread
-                    Chessboard chessboard = FindObjectOfType<Chessboard>();
-                    if (chessboard != null)
+                    if (_chessboard != null)
                     {
-                        chessboard.ProcessReceivedMove(message);
+                        // Check if the current player is white before processing the move
+                        if (_chessboard.isWhiteTurn == false)
+                        {
+                            callback(message);
+                            _chessboard.ProcessReceivedMove(message);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Received move for black's turn, ignoring...");
+                        }
                     }
                     else
                     {
@@ -67,8 +74,7 @@ namespace Communication
             }).Start();
         }
 
-
-
+        
         private void OnDestroy()
         {
             _requester?.Dispose();
