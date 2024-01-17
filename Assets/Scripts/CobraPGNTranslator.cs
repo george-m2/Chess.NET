@@ -19,10 +19,16 @@ public class CobraPGNTranslator : MonoBehaviour
         {
             (int x, int y) target = SANToBoardCoordinates(san);
             Debug.Log($"Target: {target}");
-
-            return board.MoveTo(pieceToMove, target.x, target.y);
+            Debug.Log($"Target coordinates: ({target.x}, {target.y})");
+            Debug.Log($"pieceToMove: {pieceToMove}");
+            Debug.Log($"pieceToMoveLocation: ({pieceToMove.currentX}, {pieceToMove.currentY})");
+            if (board.MoveTo(pieceToMove, target.x, target.y))
+            {
+                Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
+                return true;
+            }
         }
-        Debug.Log("The piece does not belong to the black team.");
+        
         return false;
     }
 
@@ -65,31 +71,27 @@ public class CobraPGNTranslator : MonoBehaviour
             for (int y = 0; y < Chessboard.TILE_COUNT_Y; y++)
             {
                 Piece piece = board.pieces[x, y];
-                if (piece != null && piece.type == pieceType && piece.team == 0)
+                if (piece != null && piece.type == pieceType && piece.team == 0) // Assuming 0 is the correct team identifier
                 {
-                    List<Vector2Int> availableMoves = piece.GetAvailableMoves(ref board.pieces, Chessboard.TILE_COUNT_X,
-                        Chessboard.TILE_COUNT_Y);
+                    List<Vector2Int> availableMoves = piece.GetAvailableMoves(ref board.pieces, Chessboard.TILE_COUNT_X, Chessboard.TILE_COUNT_Y);
                     if (availableMoves.Any(move => move.x == targetX && move.y == targetY))
                     {
                         candidates.Add(piece);
-                        Debug.Log($"Candidate: {piece}");
+                        Debug.Log($"Candidates: {candidates}");
                     }
                 }
             }
         }
 
-        if (candidates.Count == 1)
+        return candidates.Count switch
         {
-            return candidates[0];
-        }
-
-        if (candidates.Count > 1)
-        {
-            return DisambiguatePiece(san, candidates, board);
-        }
-
-        return null;
+            //check if disambiguation is needed
+            1 => candidates[0], 
+            > 1 => DisambiguatePiece(san, candidates, board),
+            _ => null
+        };
     }
+
 
     private PieceType IdentifyPieceTypeFromSAN(string san)
     {
@@ -113,6 +115,8 @@ public class CobraPGNTranslator : MonoBehaviour
         }
     }
 
+    //If there are multiple pieces of the same type that can move to the same square,
+    //the moving piece is uniquely identified by specifying the piece's letter, followed by (if dsc):
     private Piece DisambiguatePiece(string san, List<Piece> candidates, Chessboard board)
     {
         Debug.Log($"Disambiguating piece: {san}");

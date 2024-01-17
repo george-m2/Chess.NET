@@ -781,8 +781,13 @@ namespace ChessNET
 
         public bool MoveTo(Piece cp, int x, int y)
         {
-            if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
-                return false;
+            //temp validation fail 
+            //if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
+            {
+                //Debug.LogError($"cannot move {cp} to {x},{y}");
+                //return false;
+            }
+               
 
             Move move = new Move
             {

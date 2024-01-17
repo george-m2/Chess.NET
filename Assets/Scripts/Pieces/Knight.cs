@@ -24,6 +24,7 @@ public class Knight : Piece
                 if (board[newX, newY] == null || board[newX, newY].team != team)
                 {
                     moves.Add(new Vector2Int(newX, newY));
+                    Debug.Log(moves);
                 }
             }
         }
