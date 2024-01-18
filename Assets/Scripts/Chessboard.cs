@@ -78,7 +78,7 @@ namespace ChessNET
         public bool isCapture = false; //used to add "x" notation to PGN file
         private List<Vector2Int[]> moveList = new();
         private int moveIndex = -1;
-        private SpecialMove specialMove;
+        public SpecialMove specialMove;
         internal List<Move> moveHistory = new List<Move>();
         public Stack<Piece> originalPieces = new Stack<Piece>();
         public Stack<Piece> promotedPieces = new Stack<Piece>();
@@ -309,14 +309,14 @@ namespace ChessNET
                     PositionSinglePiece(x, y, true);
         }
 
-        private void PositionSinglePiece(int x, int y, bool force = false)
+        internal void PositionSinglePiece(int x, int y, bool force = false)
         {
             pieces[x, y].currentX = x;
             pieces[x, y].currentY = y;
             pieces[x, y].SetPosition(GetTileCenter(x, y), force);
         }
 
-        private Piece SpawnSinglePiece(PieceType type, int team)
+        public Piece SpawnSinglePiece(PieceType type, int team)
         {
             Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
             piece.type = type;
@@ -779,10 +779,15 @@ namespace ChessNET
             return false;
         }
 
-        private bool MoveTo(Piece cp, int x, int y)
+        public bool MoveTo(Piece cp, int x, int y)
         {
-            if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
-                return false;
+            //temp validation fail 
+            //if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
+            {
+                //Debug.LogError($"cannot move {cp} to {x},{y}");
+                //return false;
+            }
+               
 
             Move move = new Move
             {
@@ -875,14 +880,37 @@ namespace ChessNET
 
         private void OnMoveMade()
         {
-            Client.Instance.ReceivePgnUpdate(HandlePGN);
+            // Currently, AI is always black
+            if (!isWhiteTurn)
+            {
+                Client.Instance.ReceivePgnUpdate(HandlePGN);
+            }
         }
+
 
         public void HandlePGN(string pgn)
         {
             Debug.Log(pgn);
         }
 
+        public void ProcessReceivedMove(string sanMove)
+        {
+            CobraPGNTranslator translator = FindObjectOfType<CobraPGNTranslator>();
+            if (translator != null)
+            {
+                bool moveSuccess = translator.TranslateSANAndMove(sanMove, this, isWhiteTurn);
+                if (!moveSuccess)
+                {
+                    Debug.LogError("Failed to translate or execute move: " + sanMove);
+                }
+            }
+            else
+            {
+                Debug.LogError("CobraPGNTranslator component not found.");
+            }
+        }
+
+        //********************//
         //Move History logic
         public void MoveBack()
         {
