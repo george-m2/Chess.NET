@@ -75,6 +75,7 @@
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/ValidationExceptions.json" />
     <None Include="Library/PackageCache/com.unity.ide.rider@3.0.27/package.json" />
     <None Include="Library/PackageCache/com.unity.searcher@4.9.2/package.json" />
+    <None Include="Assets/Scripts/UnityMainThreadDispatcher/package.json" />
     <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/UI/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
@@ -84,7 +85,6 @@
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
-    <None Include="Assets/Scripts/UnityMainThreadDispatcher/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF_SSD.cginc" />
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_Properties.cginc" />
