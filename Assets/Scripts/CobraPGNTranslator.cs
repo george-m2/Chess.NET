@@ -59,10 +59,6 @@ public class CobraPGNTranslator : MonoBehaviour
         if (pieceToMove != null)
         {
             (int x, int y) target = SANToBoardCoordinates(san);
-            Debug.Log($"Target: {target}");
-            Debug.Log($"Target coordinates: ({target.x}, {target.y})");
-            Debug.Log($"pieceToMove: {pieceToMove}");
-            Debug.Log($"pieceToMoveLocation: ({pieceToMove.currentX}, {pieceToMove.currentY})");
             if (board.MoveTo(pieceToMove, target.x, target.y))
             {
                 Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
@@ -75,7 +71,6 @@ public class CobraPGNTranslator : MonoBehaviour
     
     private (int, int) SANToBoardCoordinates(string san)
     {
-        Debug.Log($"Translating SAN to board coordinates: {san}");
         int fileIndex = san.IndexOfAny("abcdefgh".ToCharArray());
         int rankIndex = san.IndexOfAny("12345678".ToCharArray());
 
@@ -99,8 +94,7 @@ public class CobraPGNTranslator : MonoBehaviour
     {
         Debug.Log($"Finding piece to move: {san}");
         PieceType pieceType = IdentifyPieceTypeFromSAN(san);
-        Debug.Log($"Piece type: {pieceType}");
-
+        
         (int targetX, int targetY) = SANToBoardCoordinates(san);
 
         List<Piece> candidates = new List<Piece>();
@@ -133,7 +127,6 @@ public class CobraPGNTranslator : MonoBehaviour
 
     private PieceType IdentifyPieceTypeFromSAN(string san)
     {
-        Debug.Log($"Identifying piece type from SAN: {san}");
         char firstChar = san[0];
 
         switch (firstChar)
