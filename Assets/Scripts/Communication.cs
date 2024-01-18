@@ -56,19 +56,10 @@ namespace Communication
                     if (_chessboard != null)
                     {
                         // Check if the current player is white before processing the move
-                        if (_chessboard.isWhiteTurn == false)
-                        {
-                            callback(message);
-                            _chessboard.ProcessReceivedMove(message);
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Received move for black's turn, ignoring...");
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError("Chessboard component not found.");
+                        if (_chessboard.isWhiteTurn) return;
+                        callback(message);
+                        _chessboard.ProcessReceivedMove(message);
+
                     }
                 });
             }).Start();
