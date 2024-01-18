@@ -14,7 +14,48 @@ public class CobraPGNTranslator : MonoBehaviour
         Debug.Log($"Piece to move: {pieceToMove}");
         Debug.Log($"Start coordinates: ({pieceToMove.currentX}, {pieceToMove.currentY})");
 
+        if (san is "O-O" or "O-O-O")
+        {
+            // Castling
+            pieceToMove = board.pieces[4, isWhiteTurn ? 0 : 7];
+            int targetX = san == "O-O" ? 6 : 2;
+            int targetY = isWhiteTurn ? 0 : 7;
+            board.specialMove = SpecialMove.Castle;
+            if (board.MoveTo(pieceToMove, targetX, targetY))
+            {
+                Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
+                return true;
+            }
+        }
 
+        if (san.Contains('='))
+        {
+            board.specialMove = SpecialMove.Promotion;
+            int promotionIndex = san.IndexOf('=');
+            if (promotionIndex != -1 && promotionIndex + 1 < san.Length)
+            {
+                char promotionChar = san[promotionIndex + 1];
+                var promotedPieceType = IdentifyPieceTypeFromSAN(promotionChar.ToString());
+
+                // Determine the position of the pawn being promoted.
+                (int x, int y) pawnPosition = SANToBoardCoordinates(san.Substring(0, promotionIndex));
+                Debug.Log($"Pawn position for promotion: ({pawnPosition.x}, {pawnPosition.y})");
+
+                // Assuming the pawn to be promoted is at the target position.
+                Piece pawnToPromote = board.pieces[pawnPosition.x, pawnPosition.y];
+
+                // Remove the pawn from the board.
+                if (pawnToPromote != null && pawnToPromote.type == PieceType.Pawn)
+                {
+                    board.pieces[pawnPosition.x, pawnPosition.y].gameObject.SetActive(false);
+                }
+
+                // Spawn and position the promoted piece at the pawn's position.
+                board.SpawnSinglePiece(promotedPieceType, 0);
+                board.PositionSinglePiece(pawnPosition.x, pawnPosition.y);
+            }
+        }
+        
         if (pieceToMove != null)
         {
             (int x, int y) target = SANToBoardCoordinates(san);
@@ -31,7 +72,7 @@ public class CobraPGNTranslator : MonoBehaviour
         
         return false;
     }
-
+    
     private (int, int) SANToBoardCoordinates(string san)
     {
         Debug.Log($"Translating SAN to board coordinates: {san}");
@@ -53,9 +94,6 @@ public class CobraPGNTranslator : MonoBehaviour
         Debug.Log($"SAN: {san}, endX: {endX}, endY: {endY}");
         return (endX, endY);
     }
-
-
-
 
     private Piece FindPieceToMove(string san, Chessboard board)
     {
@@ -113,6 +151,7 @@ public class CobraPGNTranslator : MonoBehaviour
             default:
                 return PieceType.Pawn;
         }
+        
     }
 
     //If there are multiple pieces of the same type that can move to the same square,

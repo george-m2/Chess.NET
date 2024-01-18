@@ -78,7 +78,7 @@ namespace ChessNET
         public bool isCapture = false; //used to add "x" notation to PGN file
         private List<Vector2Int[]> moveList = new();
         private int moveIndex = -1;
-        private SpecialMove specialMove;
+        public SpecialMove specialMove;
         internal List<Move> moveHistory = new List<Move>();
         public Stack<Piece> originalPieces = new Stack<Piece>();
         public Stack<Piece> promotedPieces = new Stack<Piece>();
@@ -309,14 +309,14 @@ namespace ChessNET
                     PositionSinglePiece(x, y, true);
         }
 
-        private void PositionSinglePiece(int x, int y, bool force = false)
+        internal void PositionSinglePiece(int x, int y, bool force = false)
         {
             pieces[x, y].currentX = x;
             pieces[x, y].currentY = y;
             pieces[x, y].SetPosition(GetTileCenter(x, y), force);
         }
 
-        private Piece SpawnSinglePiece(PieceType type, int team)
+        public Piece SpawnSinglePiece(PieceType type, int team)
         {
             Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
             piece.type = type;
