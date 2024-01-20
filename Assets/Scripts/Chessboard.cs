@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Communication;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
@@ -77,7 +78,7 @@ namespace ChessNET
         public bool isCapture = false; //used to add "x" notation to PGN file
         private List<Vector2Int[]> moveList = new();
         private int moveIndex = -1;
-        private SpecialMove specialMove;
+        public SpecialMove specialMove;
         internal List<Move> moveHistory = new List<Move>();
         public Stack<Piece> originalPieces = new Stack<Piece>();
         public Stack<Piece> promotedPieces = new Stack<Piece>();
@@ -154,11 +155,9 @@ namespace ChessNET
                         {
                             currentlyDragging = pieces[hitPosition.x, hitPosition.y];
                             //get list of legal moves
-                            availableMoves =
-                                currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                            availableMoves = currentlyDragging.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
                             //get list of special moves
-                            specialMove =
-                                currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
+                            specialMove = currentlyDragging.GetSpecialMoves(ref pieces, ref moveList, ref availableMoves);
                             PreventCheck();
                             HighlightTiles();
                             //highlighted list of legal moves
@@ -310,14 +309,14 @@ namespace ChessNET
                     PositionSinglePiece(x, y, true);
         }
 
-        private void PositionSinglePiece(int x, int y, bool force = false)
+        internal void PositionSinglePiece(int x, int y, bool force = false)
         {
             pieces[x, y].currentX = x;
             pieces[x, y].currentY = y;
             pieces[x, y].SetPosition(GetTileCenter(x, y), force);
         }
 
-        private Piece SpawnSinglePiece(PieceType type, int team)
+        public Piece SpawnSinglePiece(PieceType type, int team)
         {
             Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
             piece.type = type;
@@ -528,6 +527,7 @@ namespace ChessNET
                 {
                     if (pawn.team == 0 && lastMove[1].y == 7) //black promote
                     {
+                        //TODO: refactor into a function - this is a mess
                         blackPromotion.SetActive(true);
                         buttonBlackQueen.onClick.AddListener(() =>
                         {
@@ -582,8 +582,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteRook.onClick.AddListener(() =>
                         {
@@ -592,8 +592,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteBishop.onClick.AddListener(() =>
                         {
@@ -602,8 +602,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                         buttonWhiteKnight.onClick.AddListener(() =>
                         {
@@ -612,8 +612,8 @@ namespace ChessNET
                             pieces[lastMove[1].x, lastMove[1].y].gameObject.SetActive(false);
                             pieces[lastMove[1].x, lastMove[1].y] = currentPromote;
                             PositionSinglePiece(lastMove[1].x, lastMove[1].y);
-                            promotedPieces.Push(currentPromote);
                             whitePromotion.SetActive(false);
+                            promotedPieces.Push(currentPromote);
                         });
                     }
                 }
@@ -779,10 +779,15 @@ namespace ChessNET
             return false;
         }
 
-        private bool MoveTo(Piece cp, int x, int y)
+        public bool MoveTo(Piece cp, int x, int y)
         {
-            if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
-                return false;
+            //temp validation fail 
+            //if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
+            {
+                //Debug.LogError($"cannot move {cp} to {x},{y}");
+                //return false;
+            }
+               
 
             Move move = new Move
             {
@@ -852,7 +857,6 @@ namespace ChessNET
             moveList.Add(new[] { previousPosition, new Vector2Int(x, y) });
             moveHistory.Add(move);
             moveIndex = moveHistory.Count - 1;
-            UIManager.UpdatePGNText();
             //rotate camera on move
             //Thread.Sleep(50);
             //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
@@ -868,11 +872,45 @@ namespace ChessNET
                     break;
             }
 
+            UIManager.UpdatePGNText();
+            OnMoveMade();
             cp.hasMoved = true;
             return true;
         }
 
+        private void OnMoveMade()
+        {
+            // Currently, AI is always black
+            if (!isWhiteTurn)
+            {
+                Client.Instance.ReceivePgnUpdate(HandlePGN);
+            }
+        }
 
+
+        public void HandlePGN(string pgn)
+        {
+            Debug.Log(pgn);
+        }
+
+        public void ProcessReceivedMove(string sanMove)
+        {
+            CobraPGNTranslator translator = FindObjectOfType<CobraPGNTranslator>();
+            if (translator != null)
+            {
+                bool moveSuccess = translator.TranslateSANAndMove(sanMove, this, isWhiteTurn);
+                if (!moveSuccess)
+                {
+                    Debug.LogError("Failed to translate or execute move: " + sanMove);
+                }
+            }
+            else
+            {
+                Debug.LogError("CobraPGNTranslator component not found.");
+            }
+        }
+
+        //********************//
         //Move History logic
         public void MoveBack()
         {

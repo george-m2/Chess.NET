@@ -3,8 +3,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Text.RegularExpressions;
-using ChessNET; //regex
+using System.Text.RegularExpressions; //regex
+using ChessNET;
+using PGNDelegate; 
 
 
 public class UIManager : MonoBehaviour
@@ -68,11 +69,7 @@ public class UIManager : MonoBehaviour
     }
     public void UpdatePGNText()
     {
-        var pgnString = pgnExporter.GeneratePGNString();
-        //remove PGN header
-        //TODO: Add header on export as opposed to removing it every time the text is updated
-        const string headerPattern = @"\[Event "".*?""\]\n\[Site "".*?""\]\n\[Date "".*?""\]\n\[Round "".*?""\]\n\[White "".*?""\]\n\[Black "".*?""\]\n\[Result "".*?""\]\n";
-        pgnString = Regex.Replace(pgnString, headerPattern, "");
+        var pgnString = pgnExporter.GeneratePGNString(false);
         PGNText.text = pgnString;
         
     }

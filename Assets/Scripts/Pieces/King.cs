@@ -39,66 +39,61 @@ public class King : Piece
         var r = SpecialMove.None;
 
         var kingMove = moveList.Find(m => m[0].x == 4 && m[0].y == ((team == 0) ? 0 : 7));
-        var rightRook = moveList.Find(m => m[0].x == 0 && m[0].y == ((team == 0) ? 0 : 7));
-        var leftRook = moveList.Find(m => m[0].x == 7 && m[0].y == ((team == 0) ? 0 : 7));
+        var leftRook = moveList.Find(m => m[0].x == 0 && m[0].y == ((team == 0) ? 0 : 7)); // Corrected position for left rook
+        var rightRook = moveList.Find(m => m[0].x == 7 && m[0].y == ((team == 0) ? 0 : 7)); // Corrected position for right rook
 
-
-        if (kingMove == null && currentX == 4)
+        // Check if the king has not moved, regardless of its current position
+        if (kingMove == null)
         {
-            //black team
+            // black team
             if (team == 0)
             {
-                if (leftRook == null) //has the rook moved yet?
-                    if (board[0, 0].type == PieceType.Rook)
-                        if (board[0, 0].team == 0)
-                            if (board[3, 0] == null)
-                                if (board[2, 0] == null)
-                                    if (board[1, 0] == null)
-                                    {
-                                        availableMoves.Add(new Vector2Int(2, 0)); //-2x
-                                        r = SpecialMove.Castle;
-                                    }
+                // Check for left rook castling (queen side)
+                if (leftRook == null && IsPathClear(0, currentY, board))
+                {
+                    availableMoves.Add(new Vector2Int(2, 0)); // Castling move for black team, queen side
+                    r = SpecialMove.Castle;
+                }
 
-                if (rightRook == null)
-                    if (board[7, 0].type == PieceType.Rook)
-                        if (board[7, 0].team == 0)
-                            if (board[5, 0] == null)
-                                if (board[6, 0] == null)
-                                {
-                                    availableMoves.Add(new Vector2Int(6, 0)); //move to 6x
-                                    r = SpecialMove.Castle;
-                                }
+                // Check for right rook castling (king side)
+                if (rightRook == null && IsPathClear(7, currentY, board))
+                {
+                    availableMoves.Add(new Vector2Int(6, 0)); // Castling move for black team, king side
+                    r = SpecialMove.Castle;
+                }
             }
-            //white team
+            // white team
             else
             {
-                if (rightRook == null) //has the rook moved yet?
-                    if (board[0, 7].type == PieceType.Rook)
-                        if (board[0, 7].team == 1)
-                            if (board[3, 7] == null)
-                                if (board[2, 7] == null)
-                                    if (board[1, 7] == null)
-                                    {
-                                        availableMoves.Add(new Vector2Int(2, 7)); //-2x
-                                        r = SpecialMove.Castle;
-                                    }
+                // Check for left rook castling (queen side)
+                if (leftRook == null && IsPathClear(0, 7, board))
+                {
+                    availableMoves.Add(new Vector2Int(2, 7)); // Castling move for white team, queen side
+                    r = SpecialMove.Castle;
+                }
 
-                if (leftRook == null)
-                    if (board[7, 7].type == PieceType.Rook)
-                        if (board[7, 7].team == 1)
-                            if (board[5, 7] == null)
-                                if (board[6, 7] == null)
-                                {
-                                    availableMoves.Add(new Vector2Int(6, 7)); //move to 6x
-                                    r = SpecialMove.Castle;
-                                }
+                // Check for right rook castling (king side)
+                if (rightRook == null && IsPathClear(7, 7, board))
+                {
+                    availableMoves.Add(new Vector2Int(6, 7)); // Castling move for white team, king side
+                    r = SpecialMove.Castle;
+                }
             }
-
         }
 
         return r;
+    }
 
+    // Helper method to check if the path between the king and rook is clear
+    private bool IsPathClear(int rookX, int rookY, Piece[,] board)
+    {
+        int direction = rookX > currentX ? 1 : -1;
+        for (int x = currentX + direction; x != rookX; x += direction)
+        {
+            if (board[x, rookY] != null)
+                return false;
+        }
 
+        return true;
     }
 }
-

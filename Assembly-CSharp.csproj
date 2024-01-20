@@ -53,6 +53,8 @@
     <Compile Include="Assets/Scripts/Pieces/Rook.cs" />
     <Compile Include="Assets/Scripts/Pieces/Queen.cs" />
     <Compile Include="Assets/Scripts/MainMenuUIManager.cs" />
+    <Compile Include="Assets/Scripts/CobraPGNTranslator.cs" />
+    <Compile Include="Assets/Scripts/Communication.cs" />
     <Compile Include="Assets/Scripts/Pieces/Bishop.cs" />
     <Compile Include="Assets/Scripts/Pieces/Piece.cs" />
     <Compile Include="Assets/Scripts/Pieces/Pawn.cs" />
@@ -73,6 +75,7 @@
     <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/ValidationExceptions.json" />
     <None Include="Library/PackageCache/com.unity.ide.rider@3.0.27/package.json" />
     <None Include="Library/PackageCache/com.unity.searcher@4.9.2/package.json" />
+    <None Include="Assets/Scripts/UnityMainThreadDispatcher/package.json" />
     <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/UI/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
@@ -345,6 +348,12 @@
     </Reference>
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="NetMQ">
+      <HintPath>/Users/george/Chess.NET/Assets/NetMQ/NetMQ.dll</HintPath>
+    </Reference>
+    <Reference Include="AsyncIO">
+      <HintPath>/Users/george/Chess.NET/Assets/NetMQ/AsyncIO.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/NetStandard/ref/2.1.0/netstandard.dll</HintPath>
@@ -712,6 +721,9 @@
     <Reference Include="mscorlib">
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll</HintPath>
     </Reference>
+    <Reference Include="NuGetForUnity">
+      <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/NuGetForUnity.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>/Users/george/Chess.NET/Library/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
     </Reference>
@@ -793,6 +805,10 @@
     <ProjectReference Include="Unity.Searcher.Editor.csproj">
       <Project>{bc6b1460-d706-c477-307a-121eace66e65}</Project>
       <Name>Unity.Searcher.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="PimDeWitte.UnityMainThreadDispatcher.csproj">
+      <Project>{bd1fff5f-ed8a-e4e7-4dc6-080baf8da883}</Project>
+      <Name>PimDeWitte.UnityMainThreadDispatcher</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
