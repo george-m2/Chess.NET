@@ -135,7 +135,7 @@ public class Menu : MonoBehaviour
         {
             var json = JsonUtility.ToJson(data);
             File.WriteAllText(filePath, json);
-            Debug.Log("Successfully wrote to JSON file");
+            Debug.Log("Successfully wrote to JSON file at:" + filePath);
         }
         catch (Exception ex)
         {
