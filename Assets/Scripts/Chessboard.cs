@@ -50,6 +50,7 @@ namespace ChessNET
         public AudioClip checkMateSfx;
         public AudioClip staleMateSfx;
         public UIManager UIManager;
+        public Client client;
         public class Move
         {
             public Vector2Int StartPosition;
@@ -390,6 +391,7 @@ namespace ChessNET
             promotedPieces.Clear();
             originalPieces.Clear();
             NoOfGamesPlayedInSession++;
+            client.KillCobraProcess();
 
             //UI Reset
             victoryScreen.transform.GetChild(2).gameObject.SetActive(false);
@@ -422,11 +424,13 @@ namespace ChessNET
             SpawnAllPieces();
             PositionAllPieces();
             isWhiteTurn = true;
+            client.CreateEngineProcess();
         }
 
         public void Quit()
         {
             Application.Quit();
+            client.KillCobraProcess();
         }
 
         //special move logic
