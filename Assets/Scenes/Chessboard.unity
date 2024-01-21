@@ -4740,7 +4740,7 @@ GameObject:
   - component: {fileID: 1775037437}
   - component: {fileID: 1775037436}
   m_Layer: 0
-  m_Name: Communication
+  m_Name: Client
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4959,6 +4959,7 @@ MonoBehaviour:
   checkMateSfx: {fileID: 8300000, guid: 62680d5c26cc940c9b60c7118bca89a2, type: 3}
   staleMateSfx: {fileID: 8300000, guid: f32deed7c73fa4324918f7407c8a1d57, type: 3}
   UIManager: {fileID: 1120612202}
+  client: {fileID: 0}
   isWhiteTurn: 1
   isCapture: 0
   specialMove: 0

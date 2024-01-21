@@ -90,6 +90,7 @@ namespace ChessNET
         private void Awake()
         {
             audio = GetComponent<AudioSource>();
+            client = FindObjectOfType<Client>();
             isWhiteTurn = true;
             GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
             //Change when asset imported 
