@@ -94,6 +94,7 @@ namespace Communication
             {
                 _cobraProcess.Kill();
                 _cobraProcess.Dispose();
+                UnityEngine.Debug.Log("Process killed");
             }
 
             _requester?.Dispose();
