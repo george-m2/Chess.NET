@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using ChessNET;
 using UnityEngine;
@@ -16,7 +15,7 @@ namespace Communication
         public void CreateEngineProcess()
         {
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "Assets/cobra";
+            startInfo.FileName = Application.streamingAssetsPath + "/cobra";
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardInput = true;
@@ -29,6 +28,7 @@ namespace Communication
             if (_cobraProcess.Start())
             {
                 UnityEngine.Debug.Log("Process started");
+                UnityEngine.Debug.Log("Process started with ID: " + _cobraProcess.Id);
             }
             _cobraProcess.BeginOutputReadLine();
         }
@@ -46,7 +46,7 @@ namespace Communication
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                CreateEngineProcess();
             }
             else
             {
@@ -56,7 +56,6 @@ namespace Communication
 
         private void Start()
         {
-            CreateEngineProcess();
             _pgnExporter = FindObjectOfType<PGNExporter>();
             _requester = new RequestSocket();
             _requester.Connect("tcp://localhost:5555");
@@ -87,6 +86,12 @@ namespace Communication
                 });
             }).Start();
         }
+
+        public void GracefulShutdown()
+        {
+            if(_requester != null)
+                _requester.SendFrame("SHUTDOWN");
+        }
  
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
         //Unity in-engine process management also does not kill on Unity stop
@@ -111,6 +116,7 @@ namespace Communication
             {
                 _cobraProcess.Kill();
                 _cobraProcess.Dispose();
+                GracefulShutdown();
                 UnityEngine.Debug.Log("Process killed");
             }
 
