@@ -85,6 +85,7 @@ namespace ChessNET
         public Stack<Piece> promotedPieces = new Stack<Piece>();
         public static int NoOfGamesPlayedInSession = 1;
         public static string Winner = "*";
+        public bool HasWon;
 
 
         private void Awake()
@@ -872,9 +873,11 @@ namespace ChessNET
             {
                 case 1:
                     CheckMate(cp.team);
+                    client.SendGameOver();
                     break;
                 case 2:
                     CheckMate(2);
+                    client.SendGameOver();
                     break;
             }
 

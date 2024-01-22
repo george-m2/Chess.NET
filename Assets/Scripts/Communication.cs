@@ -81,8 +81,8 @@ namespace Communication
                         if (_chessboard.isWhiteTurn) return;
                         callback(message);
                         _chessboard.ProcessReceivedMove(message);
-
                     }
+                    
                 });
             }).Start();
         }
@@ -91,6 +91,12 @@ namespace Communication
         {
             if(_requester != null)
                 _requester.SendFrame("SHUTDOWN");
+        }
+
+        public void SendGameOver()
+        {
+            _requester.SendFrame("GAME_END");
+            UnityEngine.Debug.Log("Sent game over signal");
         }
  
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
