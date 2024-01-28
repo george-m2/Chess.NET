@@ -9,62 +9,75 @@ using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown resolutionDropdown;
-    [SerializeField] private Button backToMenuButton;
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private GameObject settingsPanel;
-    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private Button backToMenuButton, settingsButton, saveButton;
+    [SerializeField] private GameObject settingsPanel, mainMenuPanel;
     [SerializeField] private TMP_InputField miniMaxDepthInputField;
     [SerializeField] private TMP_Dropdown engineDropdown;
+    [SerializeField] private Slider eloSlider;
 
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
-    private int currentRefreshRate;
     private int currentResolutionIndex;
-    private int miniMaxDepth = 3; //default minmax depth 
 
     private void Start()
+    {
+        InitializeSettings();
+        AssignButtonListeners();
+        LoadSettingsIntoUI();
+    }
+
+    private void InitializeSettings()
     {
         resolutions = Screen.resolutions;
         screenResolutions = new List<Resolution>();
         resolutionDropdown.ClearOptions();
-        currentRefreshRate = Screen.currentResolution.refreshRate;
 
-        settingsButton.onClick.AddListener(() => 
+        int currentRefreshRate = Screen.currentResolution.refreshRate;
+        foreach (var res in resolutions)
         {
-            mainMenuPanel.SetActive(false);
-            settingsPanel.SetActive(true);
-        });
-
-        backToMenuButton.onClick.AddListener(() => 
-        {
-            settingsPanel.SetActive(false);
-            mainMenuPanel.SetActive(true);
-        });
-
-        engineDropdown.onValueChanged.AddListener(delegate { SaveEngineSelection(engineDropdown.value); });
-
-        for (var i = 0; i < resolutions.Length; i++)
-        {
-            if (resolutions[i].refreshRate == currentRefreshRate)
+            if (res.refreshRate == currentRefreshRate)
             {
-                screenResolutions.Add(resolutions[i]);
+                screenResolutions.Add(res);
+                if (res.width == Screen.width && res.height == Screen.height)
+                {
+                    currentResolutionIndex = screenResolutions.Count - 1;
+                }
             }
         }
 
         List<string> options = new List<string>();
-        for (int i = 0; i < screenResolutions.Count; i++)
+        foreach (var res in screenResolutions)
         {
-            string resolutionOption = screenResolutions[i].width + " x " + screenResolutions[i].height + " " + screenResolutions[i].refreshRate + "Hz";
-            options.Add(resolutionOption);
-            if (screenResolutions[i].width == Screen.width && screenResolutions[i].height == Screen.height)
-            {
-                currentResolutionIndex = i;
-            }
+            options.Add($"{res.width} x {res.height} {res.refreshRate}Hz");
         }
 
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResolutionIndex;
         resolutionDropdown.RefreshShownValue();
+    }
+
+    private void AssignButtonListeners()
+    {
+        settingsButton.onClick.AddListener(ToggleSettingsPanel);
+        backToMenuButton.onClick.AddListener(ToggleSettingsPanel);
+        saveButton.onClick.AddListener(SaveAllSettings);
+    }
+
+    private void ToggleSettingsPanel()
+    {
+        settingsPanel.SetActive(!settingsPanel.activeSelf);
+        mainMenuPanel.SetActive(!mainMenuPanel.activeSelf);
+    }
+
+    private void SaveAllSettings()
+    {
+        int depth = string.IsNullOrEmpty(miniMaxDepthInputField.text) ? 3 : int.Parse(miniMaxDepthInputField.text);
+        string engine = engineDropdown.options[engineDropdown.value].text;
+        int elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250;
+
+        JSONData data = new JSONData { depth = depth, selectedEngine = engine, elo = elo };
+        WriteJSONData(data);
+        Debug.Log("All settings saved");
     }
 
     public void LoadScene(string sceneName)
@@ -88,49 +101,43 @@ public class Menu : MonoBehaviour
         QualitySettings.SetQualityLevel(qualityIndex);
     }
 
-    public void SetMiniMaxDepth(string depthText)
+    private void LoadSettingsIntoUI()
     {
-        miniMaxDepth = int.Parse(depthText);
-        SaveMiniMaxDepth();
+        JSONData data = ReadJSONData();
+
+        miniMaxDepthInputField.text = data.depth.ToString();
+        eloSlider.value = (data.elo / 250) - 1;
+
+        int engineIndex = engineDropdown.options.FindIndex(option => option.text == data.selectedEngine);
+        if (engineIndex != -1)
+        {
+            engineDropdown.value = engineIndex;
+        }
+        //TODO: add all settings to JSON, as well as inbuilt Unity resolution/quality settings 
     }
 
-    private void SaveEngineSelection(int index)
-    {
-        string engineName = index == 1 ? "Stockfish" : "cobra";
-        JSONData data = ReadOrCreateJSONData();
-        data.selectedEngine = engineName;
-        WriteJSONData(data);
-    }
-
-    private JSONData ReadOrCreateJSONData()
+    private JSONData ReadJSONData()
     {
         string filePath = Path.Combine(Application.persistentDataPath, "settings.json");
-        JSONData data = new JSONData();
-
         if (File.Exists(filePath))
         {
-            string json = File.ReadAllText(filePath);
             try
             {
-                data = JsonUtility.FromJson<JSONData>(json);
+                string json = File.ReadAllText(filePath);
+                return JsonUtility.FromJson<JSONData>(json);
             }
             catch (Exception ex)
             {
                 Debug.LogError("Error reading JSON: " + ex.Message);
-                // Handle error or set default values
-                data.depth = 3; // Default depth
-                data.selectedEngine = "DefaultEngine"; // Default engine
             }
         }
-
-        return data;
+        
+        return new JSONData { depth = 3, selectedEngine = "DefaultEngine", elo = 850 };
     }
 
     private void WriteJSONData(JSONData data)
     {
-        string folderPath = Application.persistentDataPath;
-        string filePath = Path.Combine(folderPath, "settings.json");
-        
+        string filePath = Path.Combine(Application.persistentDataPath, "settings.json");
         try
         {
             var json = JsonUtility.ToJson(data);
@@ -142,13 +149,6 @@ public class Menu : MonoBehaviour
             Debug.LogError("Error writing to JSON file: " + ex.Message);
         }
     }
-
-    private void SaveMiniMaxDepth()
-    {
-        JSONData data = ReadOrCreateJSONData();
-        data.depth = miniMaxDepth;
-        WriteJSONData(data);
-    }
 }
 
 [Serializable]
@@ -156,4 +156,5 @@ public class JSONData
 {
     public int depth;
     public string selectedEngine;
+    public int elo;
 }

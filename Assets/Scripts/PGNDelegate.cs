@@ -24,10 +24,10 @@ namespace PGNDelegate
             return _chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>();
         }
 
-        private string ConvertToPGN(Vector2Int position, PieceType piece)
+        private string ConvertToPGN(Vector2Int endPosition, PieceType piece)
         {
-            char file = (char)('h' - position.x);
-            int rank = 8 - position.y;
+            char file = (char)('h' - endPosition.x);
+            int rank = 8 - endPosition.y;
 
             string pieceNotation = GetPieceNotation(piece);
             string moveNotation = $"{file}{rank}";
@@ -36,13 +36,11 @@ namespace PGNDelegate
             {
                 if (piece == PieceType.Pawn)
                 {
-                    // For pawn captures, prepend the file of departure
                     char departureFile = (char)('h' - _move.StartPosition.x);
                     moveNotation = $"{departureFile}x{moveNotation}";
                 }
                 else
                 {
-                    // For other pieces, simply prepend 'x' to the destination square
                     moveNotation = $"{pieceNotation}x{moveNotation}";
                 }
             }
@@ -126,15 +124,14 @@ namespace PGNDelegate
                 }
 
                 _move = _chessboard.moveHistory[i];
-                foreach (var position in moveList[i])
-                {
-                    string pgnMove = ConvertToPGN(position, _move.Piece.type);
-                    builder.Append($"{pgnMove} ");
-                }
+                Vector2Int endPosition = moveList[i].Last();
+                string pgnMove = ConvertToPGN(endPosition, _move.Piece.type);
+                builder.Append($"{pgnMove} ");
             }
 
             builder.AppendLine();
         }
+
 
         public int ExportToPGN()
         {

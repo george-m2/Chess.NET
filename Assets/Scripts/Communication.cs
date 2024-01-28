@@ -1,22 +1,47 @@
 using System.Threading;
-using AsyncIO;
 using ChessNET;
 using UnityEngine;
 using NetMQ;
 using NetMQ.Sockets;
 using PGNDelegate;
 using PimDeWitte.UnityMainThreadDispatcher;
+using System.Diagnostics;
+using GameUIManager;
+using Debug = UnityEngine.Debug; //potential ambiguity with UnityEngine.Debug.Log and System.Diagnostics.Debug.Log
 
 namespace Communication
 {
     public class Client : MonoBehaviour
     {
+        private Process _cobraProcess;
+        string bestMoveMessage;
+
+        public void CreateEngineProcess()
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = Application.streamingAssetsPath + "/cobra";
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardInput = true;
+
+            _cobraProcess = new Process();
+            _cobraProcess.StartInfo = startInfo;
+            if (_cobraProcess.Start())
+            {
+                Debug.Log("Process started");
+                Debug.Log("Process started with ID: " + _cobraProcess.Id);
+            }
+
+            _cobraProcess.BeginOutputReadLine();
+        }
+
         // Singleton pattern to easily access the instance
         public static Client Instance { get; private set; }
 
         private RequestSocket _requester;
         private PGNExporter _pgnExporter;
         private Chessboard _chessboard;
+        private UIManager _ui;
 
         private void Awake()
         {
@@ -24,7 +49,7 @@ namespace Communication
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                CreateEngineProcess();
             }
             else
             {
@@ -35,10 +60,11 @@ namespace Communication
         private void Start()
         {
             _pgnExporter = FindObjectOfType<PGNExporter>();
+            _ui = FindObjectOfType<UIManager>();
             _requester = new RequestSocket();
             _requester.Connect("tcp://localhost:5555");
         }
-        
+
         public delegate void PGNReceivedHandler(string pgnString);
 
         public void ReceivePgnUpdate(PGNReceivedHandler callback)
@@ -48,7 +74,7 @@ namespace Communication
             {
                 _requester.SendFrame(pgnString);
                 string message = _requester.ReceiveFrameString();
-                Debug.Log("Received: " + message);
+                UnityEngine.Debug.Log("Received: " + message);
 
                 // Use Unity's main thread to call the callback method and to find the Chessboard
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
@@ -59,79 +85,65 @@ namespace Communication
                         if (_chessboard.isWhiteTurn) return;
                         callback(message);
                         _chessboard.ProcessReceivedMove(message);
-
                     }
                 });
             }).Start();
         }
 
+        public void GracefulShutdown()
+        {
+            if (_requester != null)
+                _requester.SendFrame("SHUTDOWN");
+        }
+
+        public delegate void BestMoveReceivedHandler(string bestMoveString);
         
+        //TODO: refactor both SendGameOver and HandlePGN to use an event system
+        public void SendGameOver(BestMoveReceivedHandler callbackMove)
+        {
+            if (_requester == null) return;
+            _requester.SendFrame("GAME_END");
+            Debug.Log("Sent game over signal");
+
+            // Wait and receive the response
+            new Thread(() =>
+            {
+                string bestMoveMessage = _requester.ReceiveFrameString();
+                Debug.Log("Received: " + bestMoveMessage);
+
+                // Use Unity's main thread to process the received message
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                {
+                    callbackMove(bestMoveMessage);
+                    _ui.HandleBestMoveNumber(bestMoveMessage);
+                    Debug.Log("complete");
+                });
+            }).Start();
+        }
+
+
+
+        //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
+        //Unity in-engine process management also does not kill the process on Unity editor stop
+        private void OnApplicationQuit()
+        {
+            KillCobraProcess();
+        }
+
         private void OnDestroy()
         {
+            KillCobraProcess();
             _requester?.Dispose();
         }
-    }
 
-    public class Requester : RunAbleThread
-    {
-        private readonly string _pgnString;
-
-        public Requester(string pgnString)
+        internal void KillCobraProcess()
         {
-            _pgnString = pgnString;
-        }
+            _cobraProcess.Kill();
+            _cobraProcess.Dispose();
+            GracefulShutdown();
+            UnityEngine.Debug.Log("Process killed");
 
-        protected override void Run()
-        {
-            ForceDotNet.Force();
-            using (RequestSocket client = new RequestSocket())
-            {
-                client.Connect("tcp://localhost:5555");
-
-                for (int i = 0; i < 10 && Running; i++)
-                {
-                    Debug.Log("Sending PGN");
-                    client.SendFrame(_pgnString);
-
-                    string message = null;
-                    bool gotMessage = false;
-                    while (Running)
-                    {
-                        gotMessage = client.TryReceiveFrameString(out message);
-                        if (gotMessage) break;
-                    }
-
-                    if (gotMessage) Debug.Log("Received " + message);
-                }
-            }
-
-            NetMQConfig.Cleanup();
-        }
-    }
-
-    public abstract class RunAbleThread
-    {
-        private readonly Thread _runnerThread;
-
-        protected RunAbleThread()
-        {
-            _runnerThread = new Thread(Run);
-        }
-
-        protected bool Running { get; private set; }
-
-        protected abstract void Run();
-
-        public void Start()
-        {
-            Running = true;
-            _runnerThread.Start();
-        }
-
-        public void Stop()
-        {
-            Running = false;
-            _runnerThread.Join();
+            _requester?.Dispose();
         }
     }
 }

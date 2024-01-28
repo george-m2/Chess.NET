@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Communication;
+using GameUIManager;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,6 +51,7 @@ namespace ChessNET
         public AudioClip checkMateSfx;
         public AudioClip staleMateSfx;
         public UIManager UIManager;
+        public Client client;
         public class Move
         {
             public Vector2Int StartPosition;
@@ -84,11 +86,14 @@ namespace ChessNET
         public Stack<Piece> promotedPieces = new Stack<Piece>();
         public static int NoOfGamesPlayedInSession = 1;
         public static string Winner = "*";
+        public bool HasWon;
 
 
         private void Awake()
         {
             audio = GetComponent<AudioSource>();
+            client = FindObjectOfType<Client>();
+            UIManager = FindObjectOfType<UIManager>();
             isWhiteTurn = true;
             GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
             //Change when asset imported 
@@ -390,6 +395,7 @@ namespace ChessNET
             promotedPieces.Clear();
             originalPieces.Clear();
             NoOfGamesPlayedInSession++;
+            client.KillCobraProcess();
 
             //UI Reset
             victoryScreen.transform.GetChild(2).gameObject.SetActive(false);
@@ -422,11 +428,13 @@ namespace ChessNET
             SpawnAllPieces();
             PositionAllPieces();
             isWhiteTurn = true;
+            client.CreateEngineProcess();
         }
 
         public void Quit()
         {
             Application.Quit();
+            client.KillCobraProcess();
         }
 
         //special move logic
@@ -781,13 +789,14 @@ namespace ChessNET
 
         public bool MoveTo(Piece cp, int x, int y)
         {
-            //temp validation fail 
-            //if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
+            if (isWhiteTurn)
             {
-                //Debug.LogError($"cannot move {cp} to {x},{y}");
-                //return false;
+                if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
+                {
+                    Debug.LogError($"cannot move {cp} to {x},{y}");
+                    return false;
+                }
             }
-               
 
             Move move = new Move
             {
@@ -866,9 +875,11 @@ namespace ChessNET
             {
                 case 1:
                     CheckMate(cp.team);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber);
                     break;
                 case 2:
                     CheckMate(2);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber);
                     break;
             }
 
