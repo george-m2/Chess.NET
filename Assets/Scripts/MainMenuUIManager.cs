@@ -15,12 +15,18 @@ public class Menu : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private TMP_InputField miniMaxDepthInputField;
     [SerializeField] private TMP_Dropdown engineDropdown;
+    [SerializeField] private Slider eloSlider;
+    [SerializeField] private Button saveButton;
 
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
     private int currentRefreshRate;
     private int currentResolutionIndex;
-    private int miniMaxDepth = 3; //default minmax depth 
+    private int miniMaxDepth = 3; //default minmax depth
+
+    private float tempEloSliderValue;
+    private int tempEngineDropdownValue;
+    private string tempMiniMaxDepth;
 
     private void Start()
     {
@@ -40,8 +46,12 @@ public class Menu : MonoBehaviour
             settingsPanel.SetActive(false);
             mainMenuPanel.SetActive(true);
         });
-
-        engineDropdown.onValueChanged.AddListener(delegate { SaveEngineSelection(engineDropdown.value); });
+        
+        saveButton.onClick.AddListener(SaveAllSettings);
+        
+        eloSlider.onValueChanged.AddListener(delegate { tempEloSliderValue = eloSlider.value; });
+        engineDropdown.onValueChanged.AddListener(delegate { tempEngineDropdownValue = engineDropdown.value; });
+        miniMaxDepthInputField.onValueChanged.AddListener(delegate { tempMiniMaxDepth = miniMaxDepthInputField.text; });
 
         for (var i = 0; i < resolutions.Length; i++)
         {
@@ -65,6 +75,33 @@ public class Menu : MonoBehaviour
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResolutionIndex;
         resolutionDropdown.RefreshShownValue();
+    }
+
+    private void SaveAllSettings()
+    {
+        JSONData data = new JSONData
+        {
+            depth = miniMaxDepthInputField.text == "" ? 3 : int.Parse(miniMaxDepthInputField.text),
+            selectedEngine = engineDropdown.options[engineDropdown.value].text,
+            elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250,
+        };
+
+        WriteJSONData(data);
+        Debug.Log("All settings saved");
+    }
+
+
+    private void SaveEloSelection(float eloSliderValue)
+    {
+        //even though slider is set to whole integer values in Unity, it still returns a float
+        //therefore rounding should result in the same value as it will always end in .0
+        int roundedeloSliderValue = Mathf.RoundToInt(eloSliderValue);
+        roundedeloSliderValue = 250; //0 * 250 = 0, so set to 250
+        
+        roundedeloSliderValue = (roundedeloSliderValue + 1) * 250; //Slider has 6 increments, 250-2000 elo
+        JSONData data = ReadOrCreateJSONData();
+        data.elo = roundedeloSliderValue;
+        WriteJSONData(data);
     }
 
     public void LoadScene(string sceneName)
@@ -119,7 +156,8 @@ public class Menu : MonoBehaviour
                 Debug.LogError("Error reading JSON: " + ex.Message);
                 // Handle error or set default values
                 data.depth = 3; // Default depth
-                data.selectedEngine = "DefaultEngine"; // Default engine
+                data.selectedEngine = "DefaultEngine"; // cobra as default
+                data.elo = 850; // Default elo
             }
         }
 
@@ -156,4 +194,5 @@ public class JSONData
 {
     public int depth;
     public string selectedEngine;
+    public int elo;
 }
