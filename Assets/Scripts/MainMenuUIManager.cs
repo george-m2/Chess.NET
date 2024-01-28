@@ -23,6 +23,7 @@ public class Menu : MonoBehaviour
     {
         InitializeSettings();
         AssignButtonListeners();
+        LoadSettingsIntoUI();
     }
 
     private void InitializeSettings()
@@ -98,6 +99,40 @@ public class Menu : MonoBehaviour
     public void SetQuality(int qualityIndex)
     {
         QualitySettings.SetQualityLevel(qualityIndex);
+    }
+
+    private void LoadSettingsIntoUI()
+    {
+        JSONData data = ReadJSONData();
+
+        miniMaxDepthInputField.text = data.depth.ToString();
+        eloSlider.value = (data.elo / 250) - 1;
+
+        int engineIndex = engineDropdown.options.FindIndex(option => option.text == data.selectedEngine);
+        if (engineIndex != -1)
+        {
+            engineDropdown.value = engineIndex;
+        }
+        //TODO: add all settings to JSON, as well as inbuilt Unity resolution/quality settings 
+    }
+
+    private JSONData ReadJSONData()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "settings.json");
+        if (File.Exists(filePath))
+        {
+            try
+            {
+                string json = File.ReadAllText(filePath);
+                return JsonUtility.FromJson<JSONData>(json);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Error reading JSON: " + ex.Message);
+            }
+        }
+        
+        return new JSONData { depth = 3, selectedEngine = "DefaultEngine", elo = 850 };
     }
 
     private void WriteJSONData(JSONData data)
