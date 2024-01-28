@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Communication;
+using GameUIManager;
 using Pieces;
 using UnityEngine;
 using UnityEngine.UI;
@@ -92,6 +93,7 @@ namespace ChessNET
         {
             audio = GetComponent<AudioSource>();
             client = FindObjectOfType<Client>();
+            UIManager = FindObjectOfType<UIManager>();
             isWhiteTurn = true;
             GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
             //Change when asset imported 
@@ -873,11 +875,11 @@ namespace ChessNET
             {
                 case 1:
                     CheckMate(cp.team);
-                    client.SendGameOver();
+                    client.SendGameOver(UIManager.HandleBestMoveNumber);
                     break;
                 case 2:
                     CheckMate(2);
-                    client.SendGameOver();
+                    client.SendGameOver(UIManager.HandleBestMoveNumber);
                     break;
             }
 

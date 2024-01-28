@@ -5,13 +5,17 @@ using NetMQ;
 using NetMQ.Sockets;
 using PGNDelegate;
 using PimDeWitte.UnityMainThreadDispatcher;
-using System.Diagnostics; //potential ambiguity with UnityEngine.Debug.Log and System.Diagnostics.Debug.Log
+using System.Diagnostics;
+using GameUIManager;
+using Debug = UnityEngine.Debug; //potential ambiguity with UnityEngine.Debug.Log and System.Diagnostics.Debug.Log
 
 namespace Communication
 {
     public class Client : MonoBehaviour
     {
-        private Process _cobraProcess = null;
+        private Process _cobraProcess;
+        string bestMoveMessage;
+
         public void CreateEngineProcess()
         {
             ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -22,14 +26,12 @@ namespace Communication
 
             _cobraProcess = new Process();
             _cobraProcess.StartInfo = startInfo;
-            _cobraProcess.OutputDataReceived +=
-                (sender, args) =>
-                    UnityEngine.Debug.Log(args.Data); 
             if (_cobraProcess.Start())
             {
-                UnityEngine.Debug.Log("Process started");
-                UnityEngine.Debug.Log("Process started with ID: " + _cobraProcess.Id);
+                Debug.Log("Process started");
+                Debug.Log("Process started with ID: " + _cobraProcess.Id);
             }
+
             _cobraProcess.BeginOutputReadLine();
         }
 
@@ -39,6 +41,7 @@ namespace Communication
         private RequestSocket _requester;
         private PGNExporter _pgnExporter;
         private Chessboard _chessboard;
+        private UIManager _ui;
 
         private void Awake()
         {
@@ -57,10 +60,11 @@ namespace Communication
         private void Start()
         {
             _pgnExporter = FindObjectOfType<PGNExporter>();
+            _ui = FindObjectOfType<UIManager>();
             _requester = new RequestSocket();
             _requester.Connect("tcp://localhost:5555");
         }
-        
+
         public delegate void PGNReceivedHandler(string pgnString);
 
         public void ReceivePgnUpdate(PGNReceivedHandler callback)
@@ -82,49 +86,62 @@ namespace Communication
                         callback(message);
                         _chessboard.ProcessReceivedMove(message);
                     }
-                    
                 });
             }).Start();
         }
 
         public void GracefulShutdown()
         {
-            if(_requester != null)
+            if (_requester != null)
                 _requester.SendFrame("SHUTDOWN");
         }
 
-        public void SendGameOver()
+        public delegate void BestMoveReceivedHandler(string bestMoveString);
+        
+        //TODO: refactor both SendGameOver and HandlePGN to use an event system
+        public void SendGameOver(BestMoveReceivedHandler callbackMove)
         {
+            if (_requester == null) return;
             _requester.SendFrame("GAME_END");
-            UnityEngine.Debug.Log("Sent game over signal");
+            Debug.Log("Sent game over signal");
+
+            // Wait and receive the response
+            new Thread(() =>
+            {
+                string bestMoveMessage = _requester.ReceiveFrameString();
+                Debug.Log("Received: " + bestMoveMessage);
+
+                // Use Unity's main thread to process the received message
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                {
+                    callbackMove(bestMoveMessage);
+                    _ui.HandleBestMoveNumber(bestMoveMessage);
+                    Debug.Log("complete");
+                });
+            }).Start();
         }
- 
+
+
+
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
-        //Unity in-engine process management also does not kill on Unity stop
+        //Unity in-engine process management also does not kill the process on Unity editor stop
         private void OnApplicationQuit()
         {
-            KillCobraProcess(); 
+            KillCobraProcess();
         }
 
         private void OnDestroy()
         {
-            if (_cobraProcess is { HasExited: false })
-            {
-                KillCobraProcess();
-            }
-
+            KillCobraProcess();
             _requester?.Dispose();
         }
 
         internal void KillCobraProcess()
         {
-            if (_cobraProcess is { HasExited: false })
-            {
-                _cobraProcess.Kill();
-                _cobraProcess.Dispose();
-                GracefulShutdown();
-                UnityEngine.Debug.Log("Process killed");
-            }
+            _cobraProcess.Kill();
+            _cobraProcess.Dispose();
+            GracefulShutdown();
+            UnityEngine.Debug.Log("Process killed");
 
             _requester?.Dispose();
         }
