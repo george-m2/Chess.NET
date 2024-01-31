@@ -3365,6 +3365,8 @@ MonoBehaviour:
   exportIcon: {fileID: 21300000, guid: 831b4cd7af5d84a8ca1ac911c6828326, type: 3}
   PGNText: {fileID: 827993615}
   BestMoveCountText: {fileID: 705152188}
+  backButton: {fileID: 503850285}
+  forwardButton: {fileID: 449625362}
 --- !u!4 &1120612203
 Transform:
   m_ObjectHideFlags: 0
@@ -5087,8 +5089,6 @@ MonoBehaviour:
   buttonBlackRook: {fileID: 893609581}
   buttonBlackBishop: {fileID: 1469521866}
   buttonBlackKnight: {fileID: 823673692}
-  buttonBack: {fileID: 503850285}
-  buttonForward: {fileID: 449625362}
   alertPanel: {fileID: 1320168635}
   audio: {fileID: 1797854256}
   checkSfx: {fileID: 8300000, guid: 36ea615719cba436c99d1337c75524f5, type: 3}

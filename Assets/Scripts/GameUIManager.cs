@@ -19,6 +19,9 @@ namespace GameUIManager
         [SerializeField] public Sprite exportIcon;
         [SerializeField] public TMP_Text PGNText;
         [SerializeField] public TMP_Text BestMoveCountText;
+        [SerializeField] public Button backButton;
+        [SerializeField] public Button forwardButton;
+        
 
         private Chessboard _chessboard;
         private PGNExporter _pgnExporter;
@@ -47,6 +50,8 @@ namespace GameUIManager
             _pgnExporter = FindObjectOfType<PGNExporter>();
             ResignButton.onClick.AddListener(ShowResignPanel);
             exportPGNButton.onClick.AddListener(ExportHandler);
+            backButton.onClick.AddListener(() => _chessboard.MoveBack());
+            forwardButton.onClick.AddListener(() => _chessboard.MoveForward());
         }
 
         private void ShowResignPanel()

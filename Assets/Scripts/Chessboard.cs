@@ -43,8 +43,6 @@ namespace ChessNET
         [SerializeField] public Button buttonBlackRook;
         [SerializeField] public Button buttonBlackBishop;
         [SerializeField] public Button buttonBlackKnight;
-        [SerializeField] public Button buttonBack;
-        [SerializeField] public Button buttonForward;
         [SerializeField] private GameObject alertPanel;
         public new AudioSource audio;
         public AudioClip checkSfx;
@@ -98,8 +96,6 @@ namespace ChessNET
             GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
             //Change when asset imported 
             //Creates a 1 meter grid of 8x8 units on scene start
-            buttonBack.onClick.AddListener(MoveBack);
-            buttonForward.onClick.AddListener(MoveForward);
             SpawnAllPieces();
             PositionAllPieces();
         }
