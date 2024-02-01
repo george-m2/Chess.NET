@@ -993,6 +993,7 @@ namespace ChessNET
                     move.TakenPiece.SetScale(Vector3.one * takeSize);
 
                     HandleTakenPiece(move);
+                    break;
 
                 case SpecialMove.Promotion:
                     // Only proceed if there are pieces to undo the promotion of
