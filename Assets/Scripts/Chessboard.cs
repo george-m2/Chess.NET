@@ -992,11 +992,7 @@ namespace ChessNET
                         move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
                     move.TakenPiece.SetScale(Vector3.one * takeSize);
 
-                    if (move.TakenPiece.team == 0)
-                        takenWhitePiece.Remove(move.TakenPiece);
-                    else
-                        takenBlackPiece.Remove(move.TakenPiece);
-                    break;
+                    HandleTakenPiece(move);
 
                 case SpecialMove.Promotion:
                     // Only proceed if there are pieces to undo the promotion of
