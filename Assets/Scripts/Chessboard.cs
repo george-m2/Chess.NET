@@ -919,6 +919,29 @@ namespace ChessNET
 
         //********************//
         //Move History logic
+        
+        private void UndoMove(Move move)
+        {
+            // helper method for undoing a move
+            pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
+            pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
+            PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+
+            HandleTakenPiece(move);
+        }
+
+        private void HandleTakenPiece(Move move)
+        {
+            // helper method for undoing a capture 
+            if (move.TakenPiece != null)
+            {
+                PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                if (move.TakenPiece.team == 0)
+                    takenWhitePiece.Remove(move.TakenPiece);
+                else
+                    takenBlackPiece.Remove(move.TakenPiece);
+            }
+        }
         public void MoveBack()
         {
             if (moveIndex < 0)
@@ -948,17 +971,7 @@ namespace ChessNET
                     }
 
                     // Undo the move
-                    pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
-                    pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
-                    PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                    if (move.TakenPiece != null)
-                    {
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
-                        if (move.TakenPiece.team == 0)
-                            takenWhitePiece.Remove(move.TakenPiece);
-                        else
-                            takenBlackPiece.Remove(move.TakenPiece);
-                    }
+                    UndoMove(move);
 
                     break;
 
@@ -1004,7 +1017,6 @@ namespace ChessNET
                             move.TakenPiece.gameObject.SetActive(true);
                         }
 
-                        // Undo the move
                         pieces[move.StartPosition.x, move.StartPosition.y] = move.CurrentPawn;
                         move.CurrentPawn.gameObject.SetActive(true);
                         pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
@@ -1030,18 +1042,7 @@ namespace ChessNET
                         move.TakenPiece.gameObject.SetActive(true);
                     }
 
-                    // Undo the move
-                    pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
-                    pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
-                    PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                    if (move.TakenPiece != null)
-                    {
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
-                        if (move.TakenPiece.team == 0)
-                            takenWhitePiece.Remove(move.TakenPiece);
-                        else
-                            takenBlackPiece.Remove(move.TakenPiece);
-                    }
+                    UndoMove(move);
 
                     break;
             }
