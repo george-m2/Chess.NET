@@ -80,6 +80,7 @@ namespace GameUIManager
         public void UpdatePGNText()
         {
             var pgnString = _pgnExporter.GeneratePGNString(false);
+            pgnString.Substring(pgnString.Length - 4);
             PGNText.text = pgnString;
         }
 
