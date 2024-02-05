@@ -14,6 +14,7 @@ namespace GameUIManager
         [SerializeField] public GameObject ResignPanel;
         [SerializeField] public Button yesResign;
         [SerializeField] public Button noResign;
+        [SerializeField] public Button exitOnResign;
         [SerializeField] public Button exportPGNButton;
         [SerializeField] public Sprite tick;
         [SerializeField] public Sprite exportIcon;
@@ -35,7 +36,7 @@ namespace GameUIManager
             panel.SetActive(false);
         }
 
-        public IEnumerator TickExportButton(float delay)
+        private IEnumerator TickExportButton(float delay)
         {
             exportPGNButton.interactable = false; // Disable the button
             exportPGNButton.GetComponent<Image>().sprite = tick;
@@ -64,6 +65,7 @@ namespace GameUIManager
                 ResignPanel.SetActive(false);
             });
             noResign.onClick.AddListener(() => ResignPanel.SetActive(false));
+            exitOnResign.onClick.AddListener(() => Application.Quit());
         }
 
         private void ExportHandler()
