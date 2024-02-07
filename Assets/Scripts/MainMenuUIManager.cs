@@ -15,40 +15,33 @@ public class Menu : MonoBehaviour
     [SerializeField] private TMP_Dropdown engineDropdown;
     [SerializeField] private Slider eloSlider;
 
-    private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
     private int currentResolutionIndex;
 
     private void Start()
     {
-        InitializeSettings();
+        HandleResolutionSettings();
         AssignButtonListeners();
         LoadSettingsIntoUI();
     }
 
-    private void InitializeSettings()
+    private void HandleResolutionSettings()
     {
         resolutions = Screen.resolutions;
-        screenResolutions = new List<Resolution>();
         resolutionDropdown.ClearOptions();
 
-        int currentRefreshRate = Screen.currentResolution.refreshRate;
-        foreach (var res in resolutions)
-        {
-            if (res.refreshRate == currentRefreshRate)
-            {
-                screenResolutions.Add(res);
-                if (res.width == Screen.width && res.height == Screen.height)
-                {
-                    currentResolutionIndex = screenResolutions.Count - 1;
-                }
-            }
-        }
-
         List<string> options = new List<string>();
-        foreach (var res in screenResolutions)
+        // Add all native resolutions to the dropdown
+        for (int i = 0; i < resolutions.Length; i++)
         {
-            options.Add($"{res.width} x {res.height} {res.refreshRate}Hz");
+            var res = resolutions[i];
+            string option = $"{res.width} x {res.height}"; //e.g. 1920 x 1080
+            options.Add(option);
+
+            if (res.width == Screen.width && res.height == Screen.height) //if the current resolution matches the native resolution
+            {
+                currentResolutionIndex = i;
+            }
         }
 
         resolutionDropdown.AddOptions(options);
@@ -68,18 +61,18 @@ public class Menu : MonoBehaviour
         settingsPanel.SetActive(!settingsPanel.activeSelf);
         mainMenuPanel.SetActive(!mainMenuPanel.activeSelf);
     }
-
     private void SaveAllSettings()
     {
-        int depth = string.IsNullOrEmpty(miniMaxDepthInputField.text) ? 3 : int.Parse(miniMaxDepthInputField.text);
+        int depth = string.IsNullOrEmpty(miniMaxDepthInputField.text) ? 3 : int.Parse(miniMaxDepthInputField.text); //depth defaults to 3 if input is empty
         string engine = engineDropdown.options[engineDropdown.value].text;
-        int elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250;
+        int elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250; //multiply by 250 as slider is in increments of 250, starting from 250-2000
 
         JSONData data = new JSONData { depth = depth, selectedEngine = engine, elo = elo };
         WriteJSONData(data);
         Debug.Log("All settings saved");
     }
 
+    //assigned in Unity inspector
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
@@ -87,7 +80,7 @@ public class Menu : MonoBehaviour
 
     public void SetResolution(int resolutionIndex)
     {
-        Resolution resolution = screenResolutions[resolutionIndex];
+        var resolution = resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, true);
     }
 
@@ -105,10 +98,10 @@ public class Menu : MonoBehaviour
     {
         JSONData data = ReadJSONData();
 
-        miniMaxDepthInputField.text = data.depth.ToString();
-        eloSlider.value = (data.elo / 250) - 1;
+        miniMaxDepthInputField.text = data.depth.ToString(); //get depth from JSON
+        eloSlider.value = (data.elo / 250) - 1; //elo is stored as a multiple of 250, so divide by 250 and subtract 1 to get the slider value
 
-        int engineIndex = engineDropdown.options.FindIndex(option => option.text == data.selectedEngine);
+        int engineIndex = engineDropdown.options.FindIndex(option => option.text == data.selectedEngine); //find engine index from JSON
         if (engineIndex != -1)
         {
             engineDropdown.value = engineIndex;
