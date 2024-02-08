@@ -3494,7 +3494,7 @@ MonoBehaviour:
   ResignPanel: {fileID: 774614820}
   yesResign: {fileID: 1846906735}
   noResign: {fileID: 97625829}
-  exitOnResign: {fileID: 0}
+  exitOnResign: {fileID: 505390311}
   exportPGNButton: {fileID: 539230157}
   tick: {fileID: 21300000, guid: 4a11f822cbeea4a0fbb4a049b92f5c1d, type: 3}
   exportIcon: {fileID: 21300000, guid: 831b4cd7af5d84a8ca1ac911c6828326, type: 3}

@@ -126,12 +126,14 @@ namespace Communication
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
         //Unity in-engine process management also does not kill the process on Unity editor stop
         private void OnApplicationQuit()
-        {
-            KillCobraProcess();
+        { 
+            if(_cobraProcess != null)
+                KillCobraProcess();
         }
 
         private void OnDestroy()
         {
+            if (_cobraProcess == null) return;
             KillCobraProcess();
             _requester?.Dispose();
         }
