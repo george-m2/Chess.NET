@@ -82,11 +82,13 @@ public class Menu : MonoBehaviour
     {
         var resolution = resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, true);
+        Debug.Log("Resolution set to: " + resolution.width + " x " + resolution.height);
     }
 
     public void SetFullscreen(bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
+        Debug.Log(Screen.fullScreen);
     }
 
     public void SetQuality(int qualityIndex)

@@ -61,8 +61,8 @@ namespace GameUIManager
             ResignPanel.transform.GetChild(0).gameObject.SetActive(true);
             yesResign.onClick.AddListener(() =>
             {
-                _chessboard.Restart();
                 ResignPanel.SetActive(false);
+                _chessboard.Restart();
             });
             noResign.onClick.AddListener(() => ResignPanel.SetActive(false));
             exitOnResign.onClick.AddListener(() => Application.Quit());

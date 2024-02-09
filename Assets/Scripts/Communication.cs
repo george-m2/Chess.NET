@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using ChessNET;
 using UnityEngine;
@@ -120,9 +121,7 @@ namespace Communication
                 });
             }).Start();
         }
-
-
-
+        
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
         //Unity in-engine process management also does not kill the process on Unity editor stop
         private void OnApplicationQuit()
@@ -135,17 +134,33 @@ namespace Communication
         {
             if (_cobraProcess == null) return;
             KillCobraProcess();
-            _requester?.Dispose();
         }
 
         internal void KillCobraProcess()
         {
-            _cobraProcess.Kill();
-            _cobraProcess.Dispose();
-            GracefulShutdown();
-            UnityEngine.Debug.Log("Process killed");
-
-            _requester?.Dispose();
+            if (_cobraProcess != null && !_cobraProcess.HasExited)
+            {
+                try
+                {
+                    _cobraProcess.Kill();
+                    UnityEngine.Debug.Log("Process killed");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Failed to kill process: {ex.Message}");
+                }
+                finally
+                {
+                    _cobraProcess.Dispose();
+                    GracefulShutdown();
+                    _requester?.Dispose();
+                }
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Process already exited or was not started.");
+            }
         }
+
     }
 }
