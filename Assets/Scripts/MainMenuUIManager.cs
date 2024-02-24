@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
@@ -15,7 +16,7 @@ public class Menu : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private TMP_InputField miniMaxDepthInputField;
     [SerializeField] private TMP_Dropdown engineDropdown;
-    [SerializeField] private Slider eloSlider;
+    [SerializeField] private Slider stockfishSkillSlider;
     [SerializeField] private Button saveButton;
 
     private List<Resolution> screenResolutions;
@@ -45,7 +46,7 @@ public class Menu : MonoBehaviour
         
         saveButton.onClick.AddListener(SaveAllSettings);
         
-        eloSlider.onValueChanged.AddListener(delegate { });
+        stockfishSkillSlider.onValueChanged.AddListener(delegate { });
         engineDropdown.onValueChanged.AddListener(delegate { });
         miniMaxDepthInputField.onValueChanged.AddListener(delegate { });
 
@@ -75,11 +76,22 @@ public class Menu : MonoBehaviour
 
     private void SaveAllSettings()
     {
+        int sliderValue = (int)stockfishSkillSlider.value; // Slider value from 1 to 9
+        int skillLevel;
+
+        // stockfish value ranges from -1 to 8, skipping 0
+        if (sliderValue == 1) {
+            skillLevel = -1;
+        } else {
+            // Since 2 should map to 1, subtracting 2 from the slider value 
+            // and then adding 1 compensates for the skip over 0
+            skillLevel = sliderValue - 2;
+        }
         JSONData data = new JSONData
         {
             depth = miniMaxDepthInputField.text == "" ? 3 : int.Parse(miniMaxDepthInputField.text),
             selectedEngine = engineDropdown.options[engineDropdown.value].text,
-            elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250,
+            stockfishSkillLevel = skillLevel,
         };
 
         WriteJSONData(data);
@@ -93,6 +105,7 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+    
     public void SetResolution(int resolutionIndex)
     {
         Resolution resolution = screenResolutions[resolutionIndex];
@@ -132,5 +145,5 @@ public class JSONData
 {
     public int depth;
     public string selectedEngine;
-    public int elo;
+    public int stockfishSkillLevel;
 }

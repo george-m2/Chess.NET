@@ -403,7 +403,7 @@ GameObject:
   - component: {fileID: 32994336}
   - component: {fileID: 32994335}
   m_Layer: 5
-  m_Name: Depth (3)
+  m_Name: +/-
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -448,7 +448,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Higher the ELO, the better the engine is.
+  m_text: Each skill level is +/- 400 Elo
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2416,7 +2416,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Elo
+  m_text: 'Skill Level
 
     (Stockfish)'
   m_isRightToLeft: 0
@@ -2699,7 +2699,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 347.53, y: -27.5}
+  m_AnchoredPosition: {x: 382, y: -27.5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &663641796
@@ -2722,7 +2722,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2000
+  m_text: 9
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4662,7 +4662,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Elo:'
+  m_text: Skill Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4885,7 +4885,7 @@ GameObject:
   - component: {fileID: 1073490190}
   - component: {fileID: 1073490189}
   m_Layer: 5
-  m_Name: Depth (2)
+  m_Name: depthsubtext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6773,8 +6773,8 @@ RectTransform:
   - {fileID: 61457786}
   - {fileID: 1073490188}
   - {fileID: 2115719}
-  - {fileID: 1007842883}
   - {fileID: 1166853612}
+  - {fileID: 1007842883}
   - {fileID: 798110142}
   - {fileID: 1981060545}
   - {fileID: 32994334}
@@ -6783,7 +6783,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 61.600006, y: 408.8}
-  m_SizeDelta: {x: 398.40002, y: 244.9}
+  m_SizeDelta: {x: 398.40002, y: 237.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1672492132
 MonoBehaviour:
@@ -8276,7 +8276,7 @@ MonoBehaviour:
   mainMenuPanel: {fileID: 2102524374}
   miniMaxDepthInputField: {fileID: 994681986}
   engineDropdown: {fileID: 101215282}
-  eloSlider: {fileID: 2124259790}
+  stockfishSkillSlider: {fileID: 2124259790}
   saveButton: {fileID: 863158732}
 --- !u!1 &1957997439
 GameObject:
@@ -8365,7 +8365,7 @@ GameObject:
   - component: {fileID: 1981060547}
   - component: {fileID: 1981060546}
   m_Layer: 5
-  m_Name: Depth (1)
+  m_Name: skillsubtext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9512,10 +9512,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1831263659}
   m_HandleRect: {fileID: 434280939}
   m_Direction: 0
-  m_MinValue: 0
-  m_MaxValue: 7
+  m_MinValue: 1
+  m_MaxValue: 9
   m_WholeNumbers: 1
-  m_Value: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -9553,7 +9553,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 52.5, y: -27.5}
+  m_AnchoredPosition: {x: 63.93, y: -27.5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2139151861
@@ -9576,7 +9576,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 250
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
