@@ -22,6 +22,7 @@ namespace GameUIManager
         [SerializeField] public TMP_Text BestMoveCountText;
         [SerializeField] public Button backButton;
         [SerializeField] public Button forwardButton;
+        [SerializeField] public TMP_Text blunderText;
         
 
         private Chessboard _chessboard;
@@ -87,6 +88,11 @@ namespace GameUIManager
         public void HandleBestMoveNumber(string bestMoveNum)
         {
             BestMoveCountText.text = bestMoveNum;
+        }
+
+        public void HandleBlunderNumber(string blunderNum)
+        {
+            blunderText.text = blunderNum;
         }
     }
 }

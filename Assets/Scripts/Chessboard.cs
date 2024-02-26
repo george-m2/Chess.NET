@@ -871,11 +871,11 @@ namespace ChessNET
             {
                 case 1:
                     CheckMate(cp.team);
-                    client.SendGameOver(UIManager.HandleBestMoveNumber);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber, UIManager.HandleBlunderNumber);
                     break;
                 case 2:
                     CheckMate(2);
-                    client.SendGameOver(UIManager.HandleBestMoveNumber);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber, UIManager.HandleBlunderNumber);
                     break;
             }
 

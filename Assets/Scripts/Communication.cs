@@ -98,29 +98,39 @@ namespace Communication
         }
 
         public delegate void BestMoveReceivedHandler(string bestMoveString);
+
+        public delegate void BlunderRecievedHandler(string blunder);
         
         //TODO: refactor both SendGameOver and HandlePGN to use an event system
-        public void SendGameOver(BestMoveReceivedHandler callbackMove)
+        public void SendGameOver(BestMoveReceivedHandler callbackBest, BlunderRecievedHandler callbackBlunder)
         {
             if (_requester == null) return;
             _requester.SendFrame("GAME_END");
             Debug.Log("Sent game over signal");
 
-            // Wait and receive the response
             new Thread(() =>
             {
-                string bestMoveMessage = _requester.ReceiveFrameString();
-                Debug.Log("Received: " + bestMoveMessage);
+                string jsonResponse = _requester.ReceiveFrameString();
+                Debug.Log("Received: " + jsonResponse);
+
+                // Deserialize the JSON response
+                Debug.Log($"Final JSON String Before Deserialisation: {jsonResponse}");
+                GameOverResponse response = JsonUtility.FromJson<GameOverResponse>(jsonResponse);
 
                 // Use Unity's main thread to process the received message
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
-                    callbackMove(bestMoveMessage);
-                    _ui.HandleBestMoveNumber(bestMoveMessage);
-                    Debug.Log("complete");
+                    // Now calling the callback with both values
+                    callbackBest(response.bestMoveCount.ToString());
+                    callbackBlunder(response.blunderCount.ToString());
+                    _ui.HandleBestMoveNumber(response.bestMoveCount.ToString()); 
+                    Debug.Log(response.bestMoveCount.ToString());
+                    _ui.HandleBlunderNumber(response.blunderCount.ToString());
+                    Debug.Log(response.blunderCount.ToString());
                 });
             }).Start();
         }
+
         
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
         //Unity in-engine process management also does not kill the process on Unity editor stop
@@ -163,4 +173,10 @@ namespace Communication
         }
 
     }
+}
+[Serializable]
+public class GameOverResponse
+{
+    public int bestMoveCount;
+    public int blunderCount;
 }
