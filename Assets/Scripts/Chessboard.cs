@@ -75,7 +75,6 @@ namespace ChessNET
         private Piece currentlyDragging;
         private List<Vector2Int> availableMoves = new();
         public bool isWhiteTurn = true;
-        public bool isCapture = false; //used to add "x" notation to PGN file
         private List<Vector2Int[]> moveList = new();
         private int moveIndex = -1;
         public SpecialMove specialMove;
@@ -84,7 +83,6 @@ namespace ChessNET
         public Stack<Piece> promotedPieces = new Stack<Piece>();
         public static int NoOfGamesPlayedInSession = 1;
         public static string Winner = "*";
-        public bool HasWon;
 
 
         private void Awake()
@@ -890,16 +888,20 @@ namespace ChessNET
             // Currently, AI is always black
             if (!isWhiteTurn)
             {
-                Client.Instance.ReceivePgnUpdate(HandlePGN);
+                Client.Instance.ReceiveMoveData(HandlePGN, HandleACPL);
             }
         }
-
-
+        
         public void HandlePGN(string pgn)
         {
             Debug.Log(pgn);
         }
-
+        
+        public void HandleACPL(int acpl)
+        {
+            Debug.Log(acpl);
+        }
+        
         public void ProcessReceivedMove(string sanMove)
         {
             CobraPGNTranslator translator = FindObjectOfType<CobraPGNTranslator>();

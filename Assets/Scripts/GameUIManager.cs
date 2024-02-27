@@ -93,5 +93,11 @@ namespace GameUIManager
         {
             blunderText.text = blunderNum;
         }
+
+        public void HandleACPL(string acpl)
+        {
+            Debug.Log(acpl);
+        }
+        
     }
 }

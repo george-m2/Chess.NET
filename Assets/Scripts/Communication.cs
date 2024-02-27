@@ -67,16 +67,16 @@ namespace Communication
         }
 
         public delegate void PGNReceivedHandler(string pgnString);
+        public delegate void ACPLReceivedHandler(int acpl);
 
-        public void ReceivePgnUpdate(PGNReceivedHandler callback)
+        public void ReceiveMoveData(PGNReceivedHandler callback, ACPLReceivedHandler acplCallback)
         {
             string pgnString = _pgnExporter.ConvertCurrentMoveToSAN();
             new Thread(() =>
             {
                 _requester.SendFrame(pgnString);
                 string message = _requester.ReceiveFrameString();
-                UnityEngine.Debug.Log("Received: " + message);
-
+                Debug.Log("Received: " + message);
                 // Use Unity's main thread to call the callback method and to find the Chessboard
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
@@ -84,8 +84,14 @@ namespace Communication
                     {
                         // Check if the current player is white before processing the move
                         if (_chessboard.isWhiteTurn) return;
-                        callback(message);
-                        _chessboard.ProcessReceivedMove(message);
+                        MoveACPLResponseData sanAcplResponseData = JsonUtility.FromJson<MoveACPLResponseData>(message);
+                        var san = sanAcplResponseData.move;
+                        var ACPL = sanAcplResponseData.acpl;
+                        callback(san);
+                        acplCallback(ACPL);
+                        Debug.Log("Received SAN: " + san);
+                        _chessboard.ProcessReceivedMove(san);
+                        _ui.HandleACPL(ACPL.ToString()); //minor workaround to pass ACPL to UIManager
                     }
                 });
             }).Start();
@@ -177,4 +183,10 @@ public class GameOverResponse
 {
     public int bestMoveCount;
     public int blunderCount;
+}
+[Serializable]
+public class MoveACPLResponseData
+{
+    public string move;
+    public int acpl;
 }
