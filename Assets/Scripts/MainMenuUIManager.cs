@@ -18,6 +18,7 @@ public class Menu : MonoBehaviour
     [SerializeField] private TMP_Dropdown engineDropdown;
     [SerializeField] private Slider stockfishSkillSlider;
     [SerializeField] private Button saveButton;
+    [SerializeField] private Toggle ACPLToggle;
 
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
@@ -92,6 +93,7 @@ public class Menu : MonoBehaviour
             depth = miniMaxDepthInputField.text == "" ? 3 : int.Parse(miniMaxDepthInputField.text),
             selectedEngine = engineDropdown.options[engineDropdown.value].text,
             stockfishSkillLevel = skillLevel,
+            ACPL = ACPLToggle.isOn
         };
 
         WriteJSONData(data);
@@ -146,4 +148,5 @@ public class JSONData
     public int depth;
     public string selectedEngine;
     public int stockfishSkillLevel;
+    public bool ACPL;
 }

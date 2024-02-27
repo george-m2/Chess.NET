@@ -24,7 +24,6 @@ namespace GameUIManager
         [SerializeField] public Button forwardButton;
         [SerializeField] public TMP_Text blunderText;
         
-
         private Chessboard _chessboard;
         private PGNExporter _pgnExporter;
         private Client _client; //Communication

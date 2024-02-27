@@ -99,10 +99,10 @@ namespace Communication
 
         public delegate void BestMoveReceivedHandler(string bestMoveString);
 
-        public delegate void BlunderRecievedHandler(string blunder);
+        public delegate void BlunderReceivedHandler(string blunder);
         
         //TODO: refactor both SendGameOver and HandlePGN to use an event system
-        public void SendGameOver(BestMoveReceivedHandler callbackBest, BlunderRecievedHandler callbackBlunder)
+        public void SendGameOver(BestMoveReceivedHandler callbackBest, BlunderReceivedHandler callbackBlunder)
         {
             if (_requester == null) return;
             _requester.SendFrame("GAME_END");
@@ -124,9 +124,7 @@ namespace Communication
                     callbackBest(response.bestMoveCount.ToString());
                     callbackBlunder(response.blunderCount.ToString());
                     _ui.HandleBestMoveNumber(response.bestMoveCount.ToString()); 
-                    Debug.Log(response.bestMoveCount.ToString());
                     _ui.HandleBlunderNumber(response.blunderCount.ToString());
-                    Debug.Log(response.blunderCount.ToString());
                 });
             }).Start();
         }
