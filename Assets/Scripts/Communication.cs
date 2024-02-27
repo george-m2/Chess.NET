@@ -91,7 +91,7 @@ namespace Communication
                         acplCallback(ACPL);
                         Debug.Log("Received SAN: " + san);
                         _chessboard.ProcessReceivedMove(san);
-                        _ui.HandleACPL(ACPL.ToString()); //minor workaround to pass ACPL to UIManager
+                        _ui.HandleACPL(ACPL); //minor workaround to pass ACPL to UIManager
                     }
                 });
             }).Start();
