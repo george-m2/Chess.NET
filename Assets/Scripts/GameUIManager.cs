@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -25,6 +27,7 @@ namespace GameUIManager
         [SerializeField] public Button forwardButton;
         [SerializeField] public TMP_Text blunderText;
         [SerializeField] public TMP_Text acplText;
+        [SerializeField] public Button acplGraphButton;
         public Image AcplContainerFill;
         private float maxBarSize;
         
@@ -57,6 +60,7 @@ namespace GameUIManager
             exportPGNButton.onClick.AddListener(ExportHandler);
             backButton.onClick.AddListener(() => _chessboard.MoveBack());
             forwardButton.onClick.AddListener(() => _chessboard.MoveForward());
+            acplGraphButton.onClick.AddListener(OpenACPLGraph);
         }
 
         private void ShowResignPanel()
@@ -98,33 +102,50 @@ namespace GameUIManager
             blunderText.text = blunderNum;
         }
 
-        public void HandleACPL(int acpl)
+        public void HandleACPL(float acpl)
         {
             // normalise ACPL magnitude to 0-1 range for absolute fill amount
             float magnitude = Mathf.Abs(acpl) / 20f;
             magnitude = Mathf.Clamp(magnitude, 0f, 1f);
             AcplContainerFill.fillAmount = magnitude;
-            
+
             // gradient from black (-20 ACPL) through gray (0 ACPL) to white (+20 ACPL)
             float colorIntensity = (acpl + 20) / 40f; // 0-1 intensity
             colorIntensity = Mathf.Clamp(colorIntensity, 0f, 1f);
             acplText.text = acpl.ToString();
             AcplContainerFill.color = new Color(colorIntensity, colorIntensity, colorIntensity);
 
-            acplText.color = colorIntensity > 0.5 ? Color.black : // dark text, light background
+            acplText.color = colorIntensity > 0.5
+                ? Color.black
+                : // dark text, light background
                 Color.white; // light text, dark background
-            
+
+
+
+            var centipawn_accuracy = acpl / 100;
+
             // prepend "+" for positive ACPL values
-            if (acpl > 0)
+            if (centipawn_accuracy is > 99 or < -99)
             {
-                acplText.text = "+" + acpl;
+                acplText.text = "MATE";
             }
             else
             {
-                acplText.text = acpl.ToString(); 
+                if (acpl > 0)
+                {
+                    acplText.text = "+" + centipawn_accuracy;
+                }
+                else
+                {
+                    acplText.text = centipawn_accuracy.ToString();
+                }
             }
         }
 
+        public void OpenACPLGraph()
+        {
+            Process.Start(Application.persistentDataPath + "/ACPLGraph.png");
+        }
 
     }
 }
