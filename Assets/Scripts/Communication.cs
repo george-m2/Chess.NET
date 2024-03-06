@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using ChessNET;
 using UnityEngine;
@@ -66,16 +67,16 @@ namespace Communication
         }
 
         public delegate void PGNReceivedHandler(string pgnString);
+        public delegate void ACPLReceivedHandler(int acpl);
 
-        public void ReceivePgnUpdate(PGNReceivedHandler callback)
+        public void ReceiveMoveData(PGNReceivedHandler callback, ACPLReceivedHandler acplCallback)
         {
             string pgnString = _pgnExporter.ConvertCurrentMoveToSAN();
             new Thread(() =>
             {
                 _requester.SendFrame(pgnString);
                 string message = _requester.ReceiveFrameString();
-                UnityEngine.Debug.Log("Received: " + message);
-
+                Debug.Log("Received: " + message);
                 // Use Unity's main thread to call the callback method and to find the Chessboard
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
@@ -83,8 +84,14 @@ namespace Communication
                     {
                         // Check if the current player is white before processing the move
                         if (_chessboard.isWhiteTurn) return;
-                        callback(message);
-                        _chessboard.ProcessReceivedMove(message);
+                        MoveACPLResponseData sanAcplResponseData = JsonUtility.FromJson<MoveACPLResponseData>(message);
+                        var san = sanAcplResponseData.move;
+                        var ACPL = sanAcplResponseData.acpl;
+                        callback(san);
+                        acplCallback(ACPL);
+                        Debug.Log("Received SAN: " + san);
+                        _chessboard.ProcessReceivedMove(san);
+                        _ui.HandleACPL(ACPL); //minor workaround to pass ACPL to UIManager
                     }
                 });
             }).Start();
@@ -97,53 +104,89 @@ namespace Communication
         }
 
         public delegate void BestMoveReceivedHandler(string bestMoveString);
+
+        public delegate void BlunderReceivedHandler(string blunder);
         
         //TODO: refactor both SendGameOver and HandlePGN to use an event system
-        public void SendGameOver(BestMoveReceivedHandler callbackMove)
+        public void SendGameOver(BestMoveReceivedHandler callbackBest, BlunderReceivedHandler callbackBlunder)
         {
             if (_requester == null) return;
             _requester.SendFrame("GAME_END");
             Debug.Log("Sent game over signal");
 
-            // Wait and receive the response
             new Thread(() =>
             {
-                string bestMoveMessage = _requester.ReceiveFrameString();
-                Debug.Log("Received: " + bestMoveMessage);
+                string jsonResponse = _requester.ReceiveFrameString();
+                Debug.Log("Received: " + jsonResponse);
+
+                // Deserialize the JSON response
+                Debug.Log($"Final JSON String Before Deserialisation: {jsonResponse}");
+                GameOverResponse response = JsonUtility.FromJson<GameOverResponse>(jsonResponse);
 
                 // Use Unity's main thread to process the received message
                 UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
-                    callbackMove(bestMoveMessage);
-                    _ui.HandleBestMoveNumber(bestMoveMessage);
-                    Debug.Log("complete");
+                    // Now calling the callback with both values
+                    callbackBest(response.bestMoveCount.ToString());
+                    callbackBlunder(response.blunderCount.ToString());
+                    _ui.HandleBestMoveNumber(response.bestMoveCount.ToString()); 
+                    _ui.HandleBlunderNumber(response.blunderCount.ToString());
                 });
             }).Start();
         }
 
-
-
+        
         //killing the process twice isn't ideal, but cobra seems to be launching two processes on macOS
         //Unity in-engine process management also does not kill the process on Unity editor stop
         private void OnApplicationQuit()
-        {
-            KillCobraProcess();
+        { 
+            if(_cobraProcess != null)
+                KillCobraProcess();
         }
 
         private void OnDestroy()
         {
+            if (_cobraProcess == null) return;
             KillCobraProcess();
-            _requester?.Dispose();
         }
 
         internal void KillCobraProcess()
         {
-            _cobraProcess.Kill();
-            _cobraProcess.Dispose();
-            GracefulShutdown();
-            UnityEngine.Debug.Log("Process killed");
-
-            _requester?.Dispose();
+            if (_cobraProcess != null && !_cobraProcess.HasExited)
+            {
+                try
+                {
+                    _cobraProcess.Kill();
+                    UnityEngine.Debug.Log("Process killed");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Failed to kill process: {ex.Message}");
+                }
+                finally
+                {
+                    _cobraProcess.Dispose();
+                    GracefulShutdown();
+                    _requester?.Dispose();
+                }
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Process already exited or was not started.");
+            }
         }
+
     }
+}
+[Serializable]
+public class GameOverResponse
+{
+    public int bestMoveCount;
+    public int blunderCount;
+}
+[Serializable]
+public class MoveACPLResponseData
+{
+    public string move;
+    public int acpl;
 }

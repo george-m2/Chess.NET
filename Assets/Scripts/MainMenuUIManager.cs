@@ -4,51 +4,70 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown resolutionDropdown;
-    [SerializeField] private Button backToMenuButton, settingsButton, saveButton;
-    [SerializeField] private GameObject settingsPanel, mainMenuPanel;
+    [SerializeField] private Button backToMenuButton;
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private TMP_InputField miniMaxDepthInputField;
     [SerializeField] private TMP_Dropdown engineDropdown;
-    [SerializeField] private Slider eloSlider;
+    [SerializeField] private Slider stockfishSkillSlider;
+    [SerializeField] private Button saveButton;
+    [SerializeField] private Toggle ACPLToggle;
 
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
+    private int currentRefreshRate;
     private int currentResolutionIndex;
+    private int miniMaxDepth = 3; //default minmax depth
 
     private void Start()
-    {
-        InitializeSettings();
-        AssignButtonListeners();
-        LoadSettingsIntoUI();
-    }
-
-    private void InitializeSettings()
     {
         resolutions = Screen.resolutions;
         screenResolutions = new List<Resolution>();
         resolutionDropdown.ClearOptions();
+        currentRefreshRate = Screen.currentResolution.refreshRate;
 
-        int currentRefreshRate = Screen.currentResolution.refreshRate;
-        foreach (var res in resolutions)
+        settingsButton.onClick.AddListener(() => 
         {
-            if (res.refreshRate == currentRefreshRate)
+            mainMenuPanel.SetActive(false);
+            settingsPanel.SetActive(true);
+        });
+
+        backToMenuButton.onClick.AddListener(() => 
+        {
+            settingsPanel.SetActive(false);
+            mainMenuPanel.SetActive(true);
+        });
+        
+        saveButton.onClick.AddListener(SaveAllSettings);
+        
+        stockfishSkillSlider.onValueChanged.AddListener(delegate { });
+        engineDropdown.onValueChanged.AddListener(delegate { });
+        miniMaxDepthInputField.onValueChanged.AddListener(delegate { });
+
+        for (var i = 0; i < resolutions.Length; i++)
+        {
+            if (resolutions[i].refreshRate == currentRefreshRate)
             {
-                screenResolutions.Add(res);
-                if (res.width == Screen.width && res.height == Screen.height)
-                {
-                    currentResolutionIndex = screenResolutions.Count - 1;
-                }
+                screenResolutions.Add(resolutions[i]);
             }
         }
 
         List<string> options = new List<string>();
-        foreach (var res in screenResolutions)
+        for (int i = 0; i < screenResolutions.Count; i++)
         {
-            options.Add($"{res.width} x {res.height} {res.refreshRate}Hz");
+            string resolutionOption = screenResolutions[i].width + " x " + screenResolutions[i].height + " " + screenResolutions[i].refreshRate + "Hz";
+            options.Add(resolutionOption);
+            if (screenResolutions[i].width == Screen.width && screenResolutions[i].height == Screen.height)
+            {
+                currentResolutionIndex = i;
+            }
         }
 
         resolutionDropdown.AddOptions(options);
@@ -56,35 +75,39 @@ public class Menu : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
     }
 
-    private void AssignButtonListeners()
-    {
-        settingsButton.onClick.AddListener(ToggleSettingsPanel);
-        backToMenuButton.onClick.AddListener(ToggleSettingsPanel);
-        saveButton.onClick.AddListener(SaveAllSettings);
-    }
-
-    private void ToggleSettingsPanel()
-    {
-        settingsPanel.SetActive(!settingsPanel.activeSelf);
-        mainMenuPanel.SetActive(!mainMenuPanel.activeSelf);
-    }
-
     private void SaveAllSettings()
     {
-        int depth = string.IsNullOrEmpty(miniMaxDepthInputField.text) ? 3 : int.Parse(miniMaxDepthInputField.text);
-        string engine = engineDropdown.options[engineDropdown.value].text;
-        int elo = (Mathf.RoundToInt(eloSlider.value) + 1) * 250;
+        int sliderValue = (int)stockfishSkillSlider.value; // Slider value from 1 to 9
+        int skillLevel;
 
-        JSONData data = new JSONData { depth = depth, selectedEngine = engine, elo = elo };
+        // stockfish value ranges from -1 to 8, skipping 0
+        if (sliderValue == 1) {
+            skillLevel = -1;
+        } else {
+            // Since 2 should map to 1, subtracting 2 from the slider value 
+            // and then adding 1 compensates for the skip over 0
+            skillLevel = sliderValue - 2;
+        }
+        JSONData data = new JSONData
+        {
+            depth = miniMaxDepthInputField.text == "" ? 3 : int.Parse(miniMaxDepthInputField.text),
+            selectedEngine = engineDropdown.options[engineDropdown.value].text,
+            stockfishSkillLevel = skillLevel,
+            ACPL = ACPLToggle.isOn
+        };
+
         WriteJSONData(data);
         Debug.Log("All settings saved");
     }
 
+
+    //IDEs may mark these methods as unused, but they are assigned to UnityEvents in the inspector
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
     }
 
+    
     public void SetResolution(int resolutionIndex)
     {
         Resolution resolution = screenResolutions[resolutionIndex];
@@ -101,43 +124,11 @@ public class Menu : MonoBehaviour
         QualitySettings.SetQualityLevel(qualityIndex);
     }
 
-    private void LoadSettingsIntoUI()
-    {
-        JSONData data = ReadJSONData();
-
-        miniMaxDepthInputField.text = data.depth.ToString();
-        eloSlider.value = (data.elo / 250) - 1;
-
-        int engineIndex = engineDropdown.options.FindIndex(option => option.text == data.selectedEngine);
-        if (engineIndex != -1)
-        {
-            engineDropdown.value = engineIndex;
-        }
-        //TODO: add all settings to JSON, as well as inbuilt Unity resolution/quality settings 
-    }
-
-    private JSONData ReadJSONData()
-    {
-        string filePath = Path.Combine(Application.persistentDataPath, "settings.json");
-        if (File.Exists(filePath))
-        {
-            try
-            {
-                string json = File.ReadAllText(filePath);
-                return JsonUtility.FromJson<JSONData>(json);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("Error reading JSON: " + ex.Message);
-            }
-        }
-        
-        return new JSONData { depth = 3, selectedEngine = "DefaultEngine", elo = 850 };
-    }
-
     private void WriteJSONData(JSONData data)
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "settings.json");
+        string folderPath = Application.persistentDataPath;
+        string filePath = Path.Combine(folderPath, "settings.json");
+        
         try
         {
             var json = JsonUtility.ToJson(data);
@@ -156,5 +147,6 @@ public class JSONData
 {
     public int depth;
     public string selectedEngine;
-    public int elo;
+    public int stockfishSkillLevel;
+    public bool ACPL;
 }

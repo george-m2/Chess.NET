@@ -138,7 +138,6 @@ namespace PGNDelegate
             try
             {
                 var pgn = GeneratePGNString(true);
-                Debug.Log(pgn);
                 File.WriteAllText("pgn.pgn", pgn);
                 return 0; // Success
             }

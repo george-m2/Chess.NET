@@ -350,10 +350,10 @@
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
     <Reference Include="NetMQ">
-      <HintPath>/Users/george/Chess.NET/Assets/NetMQ/NetMQ.dll</HintPath>
+      <HintPath>/Users/george/Chess.NET/Assets/Packages/NetMQ.dll</HintPath>
     </Reference>
     <Reference Include="AsyncIO">
-      <HintPath>/Users/george/Chess.NET/Assets/NetMQ/AsyncIO.dll</HintPath>
+      <HintPath>/Users/george/Chess.NET/Assets/Packages/AsyncIO.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/2022.3.9f1/Unity.app/Contents/NetStandard/ref/2.1.0/netstandard.dll</HintPath>

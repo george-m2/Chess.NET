@@ -43,8 +43,6 @@ namespace ChessNET
         [SerializeField] public Button buttonBlackRook;
         [SerializeField] public Button buttonBlackBishop;
         [SerializeField] public Button buttonBlackKnight;
-        [SerializeField] public Button buttonBack;
-        [SerializeField] public Button buttonForward;
         [SerializeField] private GameObject alertPanel;
         public new AudioSource audio;
         public AudioClip checkSfx;
@@ -77,7 +75,6 @@ namespace ChessNET
         private Piece currentlyDragging;
         private List<Vector2Int> availableMoves = new();
         public bool isWhiteTurn = true;
-        public bool isCapture = false; //used to add "x" notation to PGN file
         private List<Vector2Int[]> moveList = new();
         private int moveIndex = -1;
         public SpecialMove specialMove;
@@ -86,7 +83,6 @@ namespace ChessNET
         public Stack<Piece> promotedPieces = new Stack<Piece>();
         public static int NoOfGamesPlayedInSession = 1;
         public static string Winner = "*";
-        public bool HasWon;
 
 
         private void Awake()
@@ -98,8 +94,6 @@ namespace ChessNET
             GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
             //Change when asset imported 
             //Creates a 1 meter grid of 8x8 units on scene start
-            buttonBack.onClick.AddListener(MoveBack);
-            buttonForward.onClick.AddListener(MoveForward);
             SpawnAllPieces();
             PositionAllPieces();
         }
@@ -875,11 +869,11 @@ namespace ChessNET
             {
                 case 1:
                     CheckMate(cp.team);
-                    client.SendGameOver(UIManager.HandleBestMoveNumber);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber, UIManager.HandleBlunderNumber);
                     break;
                 case 2:
                     CheckMate(2);
-                    client.SendGameOver(UIManager.HandleBestMoveNumber);
+                    client.SendGameOver(UIManager.HandleBestMoveNumber, UIManager.HandleBlunderNumber);
                     break;
             }
 
@@ -894,16 +888,20 @@ namespace ChessNET
             // Currently, AI is always black
             if (!isWhiteTurn)
             {
-                Client.Instance.ReceivePgnUpdate(HandlePGN);
+                Client.Instance.ReceiveMoveData(HandlePGN, HandleACPL);
             }
         }
-
-
+        
         public void HandlePGN(string pgn)
         {
             Debug.Log(pgn);
         }
-
+        
+        public void HandleACPL(int acpl)
+        {
+            Debug.Log(acpl);
+        }
+        
         public void ProcessReceivedMove(string sanMove)
         {
             CobraPGNTranslator translator = FindObjectOfType<CobraPGNTranslator>();
@@ -923,6 +921,29 @@ namespace ChessNET
 
         //********************//
         //Move History logic
+        
+        private void UndoMove(Move move)
+        {
+            // helper method for undoing a move
+            pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
+            pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
+            PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
+
+            HandleTakenPiece(move);
+        }
+
+        private void HandleTakenPiece(Move move)
+        {
+            // helper method for undoing a capture 
+            if (move.TakenPiece != null)
+            {
+                PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
+                if (move.TakenPiece.team == 0)
+                    takenWhitePiece.Remove(move.TakenPiece);
+                else
+                    takenBlackPiece.Remove(move.TakenPiece);
+            }
+        }
         public void MoveBack()
         {
             if (moveIndex < 0)
@@ -952,17 +973,7 @@ namespace ChessNET
                     }
 
                     // Undo the move
-                    pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
-                    pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
-                    PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                    if (move.TakenPiece != null)
-                    {
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
-                        if (move.TakenPiece.team == 0)
-                            takenWhitePiece.Remove(move.TakenPiece);
-                        else
-                            takenBlackPiece.Remove(move.TakenPiece);
-                    }
+                    UndoMove(move);
 
                     break;
 
@@ -983,10 +994,7 @@ namespace ChessNET
                         move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
                     move.TakenPiece.SetScale(Vector3.one * takeSize);
 
-                    if (move.TakenPiece.team == 0)
-                        takenWhitePiece.Remove(move.TakenPiece);
-                    else
-                        takenBlackPiece.Remove(move.TakenPiece);
+                    HandleTakenPiece(move);
                     break;
 
                 case SpecialMove.Promotion:
@@ -1008,7 +1016,6 @@ namespace ChessNET
                             move.TakenPiece.gameObject.SetActive(true);
                         }
 
-                        // Undo the move
                         pieces[move.StartPosition.x, move.StartPosition.y] = move.CurrentPawn;
                         move.CurrentPawn.gameObject.SetActive(true);
                         pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
@@ -1034,18 +1041,7 @@ namespace ChessNET
                         move.TakenPiece.gameObject.SetActive(true);
                     }
 
-                    // Undo the move
-                    pieces[move.StartPosition.x, move.StartPosition.y] = move.Piece;
-                    pieces[move.EndPosition.x, move.EndPosition.y] = move.TakenPiece;
-                    PositionSinglePiece(move.StartPosition.x, move.StartPosition.y);
-                    if (move.TakenPiece != null)
-                    {
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y);
-                        if (move.TakenPiece.team == 0)
-                            takenWhitePiece.Remove(move.TakenPiece);
-                        else
-                            takenBlackPiece.Remove(move.TakenPiece);
-                    }
+                    UndoMove(move);
 
                     break;
             }
