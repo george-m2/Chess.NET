@@ -4794,7 +4794,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ACPL
+  m_text: Accuracy
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f76cb1d20b3e944429f16cda152489bf, type: 2}
   m_sharedMaterial: {fileID: -32839352216640205, guid: f76cb1d20b3e944429f16cda152489bf, type: 2}
