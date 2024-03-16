@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Communication;
 using GameUIManager;
 using Pieces;
@@ -56,6 +57,8 @@ namespace ChessNET
         public Client client;
         public bool isWhiteTurn = true;
         public SpecialMove specialMove;
+        private readonly List<Piece> takenBlackPiece = new();
+        private readonly List<Piece> takenWhitePiece = new();
         private List<Vector2Int> availableMoves = new();
         private Vector3 bounds;
         private Camera currentCamera; //init Unity Camera class which lets the player see the board 
@@ -64,12 +67,10 @@ namespace ChessNET
         internal List<Move> moveHistory = new();
         private int moveIndex = -1;
         private List<Vector2Int[]> moveList = new();
-        public Stack<Piece> originalPieces = new();
+        private readonly Stack<Piece> originalPieces = new();
 
         internal Piece[,] pieces; //x,y array. Automatic properties needed for PGNExporter
         public Stack<Piece> promotedPieces = new();
-        private readonly List<Piece> takenBlackPiece = new();
-        private readonly List<Piece> takenWhitePiece = new();
         private GameObject[,] tiles; //Instantiates the base class for all Unity entities
 
 
@@ -374,10 +375,11 @@ namespace ChessNET
                     pieces[x, y] = null;
                 }
 
-            for (var i = 0; i < takenWhitePiece.Count; i++)
-                Destroy(takenWhitePiece[i].gameObject);
-            for (var i = 0; i < takenBlackPiece.Count; i++)
-                Destroy(takenBlackPiece[i].gameObject);
+            foreach (var t in takenWhitePiece)
+                Destroy(t.gameObject);
+
+            foreach (var t in takenBlackPiece)
+                Destroy(t.gameObject);
 
             takenWhitePiece.Clear();
             takenBlackPiece.Clear();
@@ -401,7 +403,7 @@ namespace ChessNET
             if (specialMove == SpecialMove.EnPassant) HandleEnPassantMove();
 
             if (specialMove == SpecialMove.Castle) HandleCastling();
-            
+
             if (specialMove != SpecialMove.Promotion) return;
             {
                 var lastMove = moveList[^1];
@@ -479,6 +481,7 @@ namespace ChessNET
                             pieces[0, 7] = null;
                             break;
                     }
+
                     break;
                 case 6:
                     switch (lastMove[1].y)
@@ -494,9 +497,11 @@ namespace ChessNET
                             pieces[7, 7] = null;
                             break;
                     }
+
                     break;
             }
         }
+
         private void HandleEnPassantMove()
         {
             var newMove = moveList[^1];
@@ -561,10 +566,10 @@ namespace ChessNET
             var movesToRemove = new List<Vector2Int>();
 
             //go through all moves, sim moves and check if king is in check
-            for (var c = 0; c < moves.Count; c++)
+            foreach (var t in moves)
             {
-                var simX = moves[c].x;
-                var simY = moves[c].y;
+                var simX = t.x;
+                var simY = t.y;
 
                 var kingSimPos = new Vector2Int(targetKing.currentX, targetKing.currentY);
                 //has king move been simulated?
@@ -596,15 +601,13 @@ namespace ChessNET
 
                 //get all the moves for the simulated attacking pieces 
                 var simMoves = new List<Vector2Int>();
-                for (var a = 0; a < simAttackPiece.Count; a++)
+                foreach (var pieceMoves in simAttackPiece.Select(t1 => t1.GetAvailableMoves(ref simulation, TILE_COUNT_X, TILE_COUNT_Y)))
                 {
-                    var pieceMoves = simAttackPiece[a].GetAvailableMoves(ref simulation, TILE_COUNT_X, TILE_COUNT_Y);
-                    for (var b = 0; b < pieceMoves.Count; b++)
-                        simMoves.Add(pieceMoves[b]);
+                    simMoves.AddRange(pieceMoves);
                 }
 
                 //Is in the king in check?
-                if (ContainsValidMove(ref simMoves, kingSimPos)) movesToRemove.Add(moves[c]);
+                if (ContainsValidMove(ref simMoves, kingSimPos)) movesToRemove.Add(t);
 
                 //restore values
                 cp.currentX = actualX;
@@ -612,9 +615,9 @@ namespace ChessNET
             }
 
             //remove from move list
-            for (var i = 0; i < movesToRemove.Count; i++)
-                moves.Remove(movesToRemove[i]);
-        }
+            foreach (var t in movesToRemove)
+                moves.Remove(t);
+        } 
 
         private int CheckForCheckmate()
         {
@@ -641,55 +644,48 @@ namespace ChessNET
                     }
                 }
 
-            //Is it the king being attacked?
+            //Is the king being attacked?
             var currentAvailableMoves = new List<Vector2Int>();
-            for (var i = 0; i < attackingPieces.Count; i++)
+            foreach (var pieceMoves in attackingPieces.Select(t => t.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y)))
             {
-                var pieceMoves = attackingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
-                for (var j = 0; j < pieceMoves.Count; j++)
-                    currentAvailableMoves.Add(pieceMoves[j]);
+                currentAvailableMoves.AddRange(pieceMoves);
             }
 
             // Are we in check?
             if (ContainsValidMove(ref currentAvailableMoves, new Vector2Int(targetKing.currentX, targetKing.currentY)))
             {
                 //Can we block?
-                for (var i = 0; i < defendingPieces.Count; i++)
+                foreach (var t in defendingPieces)
                 {
                     var defendingMoves =
-                        defendingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
-                    SimMoveForPiece(defendingPieces[i], ref defendingMoves, targetKing);
+                        t.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y); //get all moves for defending pieces 
+                    SimMoveForPiece(t, ref defendingMoves, targetKing); 
 
                     //check, not checkmate
-                    if (defendingMoves.Count != 0)
-                    {
-                        audio.PlayOneShot(checkSfx, 1F); //sfx for check
-                        return 0;
-                    }
+                    if (defendingMoves.Count == 0) continue;
+                    audio.PlayOneShot(checkSfx, 1F); //sfx for check
+                    return 0; //not checkmate
                 }
 
                 return 1; //checkmate condition
             }
 
-            for (var i = 0; i < defendingPieces.Count; i++)
+            foreach (var t in defendingPieces)
             {
                 var defendingMoves =
-                    defendingPieces[i].GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
-                SimMoveForPiece(defendingPieces[i], ref defendingMoves, targetKing);
+                    t.GetAvailableMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                SimMoveForPiece(t, ref defendingMoves, targetKing);
                 if (defendingMoves.Count != 0)
-                    return 0;
+                    return 0; //can be defended
             }
 
             return 2; //stalemate condition
         }
 
         //movement logic
-        private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
+        private static bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
         {
-            for (var i = 0; i < moves.Count; i++)
-                if (moves[i].x == pos.x && moves[i].y == pos.y)
-                    return true;
-            return false;
+            return moves.Any(t => t.x == pos.x && t.y == pos.y); //checks if a move is valid
         }
 
         public bool MoveTo(Piece cp, int x, int y)
