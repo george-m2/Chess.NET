@@ -244,7 +244,8 @@ namespace ChessNET
         private void SpawnAllPieces()
         {
             pieces = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
-            int whiteTeam = 0, blackTeam = 1;
+            const int whiteTeam = 0;
+            const int blackTeam = 1;
 
             // White
             for (var i = 0; i < TILE_COUNT_X; i++) pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, whiteTeam);
@@ -785,12 +786,12 @@ namespace ChessNET
             if (!isWhiteTurn) Client.Instance.ReceiveMoveData(HandlePGN, HandleACPL);
         }
 
-        public void HandlePGN(string pgn)
+        private void HandlePGN(string pgn) //callback for PGN
         {
             Debug.Log(pgn);
         }
 
-        public void HandleACPL(int acpl)
+        private void HandleACPL(int acpl) //callback for ACPL
         {
             Debug.Log(acpl);
         }
