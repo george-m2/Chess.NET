@@ -62,7 +62,7 @@
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" />
     <None Include="Library/PackageCache/com.unity.ext.nunit@1.0.6/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/package.json" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/package.json" />
     <None Include="Library/PackageCache/com.unity.sysroot.linux-x86_64@2.0.6/package.json" />
     <None Include="Library/PackageCache/com.unity.burst@1.8.8/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Mobile.cginc" />
@@ -70,12 +70,12 @@
     <None Include="Library/PackageCache/com.unity.sysroot@2.0.7/package.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF SSD.shader" />
     <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/package.json" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/PackageConversionData.json" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/PackageConversionData.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/ValidationExceptions.json" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/ValidationExceptions.json" />
     <None Include="Library/PackageCache/com.unity.ide.rider@3.0.27/package.json" />
     <None Include="Library/PackageCache/com.unity.searcher@4.9.2/package.json" />
-    <None Include="Assets/Scripts/UnityMainThreadDispatcher/package.json" />
+    <None Include="/Users/george/Downloads/UnityMainThreadDispatcher/package.json" />
     <None Include="Library/PackageCache/com.unity.toolchain.macos-arm64-linux-x86_64@2.0.0/ValidationConfig.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
     <None Include="Assets/UI/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
@@ -86,12 +86,12 @@
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
     <None Include="Assets/UI/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF_SSD.cginc" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_Properties.cginc" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/Editor Resources/Shaders/TMP_SDF Internal Editor.shader" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/Editor Resources/Shaders/TMP_SDF_SSD.cginc" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/Editor Resources/Shaders/TMP_Properties.cginc" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/Editor Resources/Shaders/TMP_SDF Internal Editor.shader" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_SDF Overlay.shader" />
-    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.6/PackageConversionData_Assets.json" />
+    <None Include="Library/PackageCache/com.unity.textmeshpro@3.0.8/PackageConversionData_Assets.json" />
     <None Include="Assets/UI/TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader" />
     <None Include="Library/PackageCache/com.unity.mathematics@1.2.6/ValidationExceptions.json" />
     <None Include="Assets/UI/TextMesh Pro/Fonts/LiberationSans - OFL.txt" />
@@ -786,6 +786,10 @@
       <Project>{84dcd864-178e-fb35-b2b1-abc3211201d8}</Project>
       <Name>Unity.Toolchain.Macos-arm64-Linux-x86_64</Name>
     </ProjectReference>
+    <ProjectReference Include="PimDeWitte.UnityMainThreadDispatcher.csproj">
+      <Project>{bd1fff5f-ed8a-e4e7-4dc6-080baf8da883}</Project>
+      <Name>PimDeWitte.UnityMainThreadDispatcher</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.SysrootPackage.Editor.csproj">
       <Project>{843198d1-50b9-00c9-1299-c36564f7a104}</Project>
       <Name>Unity.SysrootPackage.Editor</Name>
@@ -805,10 +809,6 @@
     <ProjectReference Include="Unity.Searcher.Editor.csproj">
       <Project>{bc6b1460-d706-c477-307a-121eace66e65}</Project>
       <Name>Unity.Searcher.Editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="PimDeWitte.UnityMainThreadDispatcher.csproj">
-      <Project>{bd1fff5f-ed8a-e4e7-4dc6-080baf8da883}</Project>
-      <Name>PimDeWitte.UnityMainThreadDispatcher</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

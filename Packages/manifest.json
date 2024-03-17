@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
-    "com.unity.ide.rider": "3.0.27",
+    "com.pimdewitte.unitymainthreaddispatcher": "file:/Users/george/Downloads/UnityMainThreadDispatcher",
+    "com.unity.ide.rider": "3.0.28",
     "com.unity.render-pipelines.universal": "14.0.8",
-    "com.unity.textmeshpro": "3.0.6",
+    "com.unity.textmeshpro": "3.0.8",
     "com.unity.toolchain.macos-arm64-linux-x86_64": "2.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
