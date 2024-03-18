@@ -761,7 +761,6 @@ namespace ChessNET
             //Thread.Sleep(50);
             //currentCamera.transform.rotation *= Quaternion.Euler(0, 0, 360);
 
-            ProcessSpecialMoves();
             switch (CheckForCheckmate())
             {
                 case 1:
@@ -774,6 +773,7 @@ namespace ChessNET
                     break;
             }
 
+            ProcessSpecialMoves();
             UIManager.UpdatePGNText();
             OnMoveMade();
             cp.hasMoved = true;
