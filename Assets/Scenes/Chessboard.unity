@@ -3951,6 +3951,7 @@ MonoBehaviour:
   BestMoveCountText: {fileID: 705152188}
   backButton: {fileID: 503850285}
   forwardButton: {fileID: 449625362}
+  alertPanel: {fileID: 1320168635}
   blunderText: {fileID: 577246431}
   acplText: {fileID: 670794608}
   acplGraphButton: {fileID: 265877175}
@@ -6081,7 +6082,6 @@ MonoBehaviour:
   buttonBlackRook: {fileID: 893609581}
   buttonBlackBishop: {fileID: 1469521866}
   buttonBlackKnight: {fileID: 823673692}
-  alertPanel: {fileID: 1320168635}
   audio: {fileID: 1797854256}
   checkSfx: {fileID: 8300000, guid: 36ea615719cba436c99d1337c75524f5, type: 3}
   checkMateSfx: {fileID: 8300000, guid: 62680d5c26cc940c9b60c7118bca89a2, type: 3}

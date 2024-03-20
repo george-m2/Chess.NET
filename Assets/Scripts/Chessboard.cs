@@ -48,7 +48,6 @@ namespace ChessNET
         [SerializeField] public Button buttonBlackRook;
         [SerializeField] public Button buttonBlackBishop;
         [SerializeField] public Button buttonBlackKnight;
-        [SerializeField] private GameObject alertPanel;
         public new AudioSource audio;
         public AudioClip checkSfx;
         public AudioClip checkMateSfx;
@@ -103,7 +102,7 @@ namespace ChessNET
             {
                 if (moveIndex != moveHistory.Count - 1)
                 {
-                    if (Input.GetMouseButtonDown(0)) UIManager.StartCoroutine(UIManager.ShowAndHide(alertPanel, 1.0f));
+                    if (Input.GetMouseButtonDown(0)) UIManager.StartCoroutine(UIManager.ShowAndHideAlertPanel(UIManager.alertPanel, 1.0f));
 
                     return;
                 }
@@ -187,9 +186,7 @@ namespace ChessNET
         }
 
         //board generation
-        private void
-            GenerateAllTiles(float tileSize, int tileSizeX,
-                int tileSizeY) //defines the size of the board, and vertical/horizontal length 
+        private void GenerateAllTiles(float tileSize, int tileSizeX, int tileSizeY) //defines the size of the board, and vertical/horizontal length 
         {
             yOffset += transform.position.y;
             bounds = new Vector3(tileSizeX / 2 * tileSize, 0, tileSizeX / 2 * tileSize) + boardCenter;
