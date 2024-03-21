@@ -616,6 +616,28 @@ namespace ChessNET
             foreach (var t in movesToRemove)
                 moves.Remove(t);
         } 
+        
+        private bool AreOnlyKingsLeft()
+        {
+            int pieceCount = 0;
+            for (var x = 0; x < TILE_COUNT_X; x++)
+            {
+                for (var y = 0; y < TILE_COUNT_Y; y++)
+                {
+                    if (pieces[x, y] != null)
+                    {
+                        pieceCount++;
+                        // if any piece besides a king is found, return false.
+                        if (pieces[x, y].type != PieceType.King)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            // true if only two pieces (kings) are on the board, false otherwise.
+            return pieceCount == 2;
+        }
 
         private int CheckForCheckmate()
         {
@@ -641,6 +663,11 @@ namespace ChessNET
                         attackingPieces.Add(pieces[x, y]);
                     }
                 }
+            
+            if (AreOnlyKingsLeft()) // If only kings are left on the board, it's a stalemate.
+            {
+                return 2; // stalemate
+            }
 
             //Is the king being attacked?
             var currentAvailableMoves = new List<Vector2Int>();
