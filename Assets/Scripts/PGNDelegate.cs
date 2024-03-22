@@ -44,6 +44,12 @@ namespace PGNDelegate
                     moveNotation = $"{pieceNotation}x{moveNotation}";
                 }
             }
+            else if (_move.SpecialMoveType == SpecialMove.EnPassant)
+            {
+                char departureFile = (char)('h' - _move.StartPosition.x);
+                moveNotation = $"{departureFile}x{moveNotation}";
+            }
+              
             else if (piece != PieceType.Pawn)
             {
                 moveNotation = $"{pieceNotation}{moveNotation}";
@@ -75,6 +81,8 @@ namespace PGNDelegate
                     return _move.EndPosition.x == 2 ? "O-O-O" : "O-O";
                 case SpecialMove.Promotion:
                     return GetPromotionNotation();
+                case SpecialMove.EnPassant:
+                    return " e.p.";
                 case SpecialMove.None:
                     return "";
                 default:
