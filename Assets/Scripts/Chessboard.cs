@@ -462,43 +462,44 @@ namespace ChessNET
         private void HandleCastling()
         {
             var lastMove = moveList[^1];
-            var rook = pieces[lastMove[1].x, lastMove[1].y];
+
             switch (lastMove[1].x)
             {
-                case 2:
-                    switch (lastMove[1].y)
+                case 5: // queen-side castling
+                    if (lastMove[1].y == 0) // black
                     {
-                        case 0:
-                            pieces[3, 0] = rook;
-                            PositionSinglePiece(3, 0);
-                            pieces[0, 0] = null;
-                            break;
-                        case 7:
-                            pieces[3, 7] = rook;
-                            PositionSinglePiece(3, 7);
-                            pieces[0, 7] = null;
-                            break;
+                        var rook = pieces[7, 0];
+                        pieces[4, 0] = rook; 
+                        PositionSinglePiece(3, 0);
+                        pieces[7, 0] = null; 
                     }
-
+                    else if (lastMove[1].y == 7) // white
+                    {
+                        var rook = pieces[7, 7];
+                        pieces[4, 7] = rook; 
+                        PositionSinglePiece(4, 7);
+                        pieces[7, 7] = null; 
+                    }
                     break;
-                case 6:
-                    switch (lastMove[1].y)
+                case 1:  //king-side castling
+                    if (lastMove[1].y == 0) // black
                     {
-                        case 0:
-                            pieces[5, 0] = rook;
-                            PositionSinglePiece(5, 0);
-                            pieces[7, 0] = null;
-                            break;
-                        case 7:
-                            pieces[5, 7] = rook;
-                            PositionSinglePiece(5, 7);
-                            pieces[7, 7] = null;
-                            break;
+                        var rook = pieces[0, 0];
+                        pieces[2, 0] = rook; 
+                        PositionSinglePiece(2, 0);
+                        pieces[0, 0] = null; 
                     }
-
+                    else if (lastMove[1].y == 7) // white
+                    {
+                        var rook = pieces[0, 7];
+                        pieces[2, 7] = rook; 
+                        PositionSinglePiece(2, 7);
+                        pieces[0, 7] = null; 
+                    }
                     break;
             }
         }
+
 
         private void HandleEnPassantMove()
         {
