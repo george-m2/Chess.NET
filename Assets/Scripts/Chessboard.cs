@@ -463,14 +463,14 @@ namespace ChessNET
         {
             var lastMove = moveList[^1];
 
-            switch (lastMove[1].x)
+            switch (lastMove[1].x) //king move x value
             {
                 case 5: // queen-side castling
                     if (lastMove[1].y == 0) // black
                     {
                         var rook = pieces[7, 0];
                         pieces[4, 0] = rook; 
-                        PositionSinglePiece(3, 0);
+                        PositionSinglePiece(4, 0);
                         pieces[7, 0] = null; 
                     }
                     else if (lastMove[1].y == 7) // white
