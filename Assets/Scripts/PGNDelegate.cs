@@ -56,8 +56,7 @@ namespace PGNDelegate
             }
 
             string specialMoveNotation = GetSpecialMoveNotation();
-
-            return $"{moveNotation}{specialMoveNotation}";
+            return _move.SpecialMoveType == SpecialMove.Castle ? $"{specialMoveNotation}" : $"{moveNotation}{specialMoveNotation}";
         }
 
 
