@@ -25,6 +25,7 @@ namespace GameUIManager
         [SerializeField] public TMP_Text BestMoveCountText;
         [SerializeField] public Button backButton;
         [SerializeField] public Button forwardButton;
+        [SerializeField] public GameObject alertPanel;
         [SerializeField] public TMP_Text blunderText;
         [SerializeField] public TMP_Text acplText;
         [SerializeField] public Button acplGraphButton;
@@ -35,7 +36,7 @@ namespace GameUIManager
         private PGNExporter _pgnExporter;
         private Client _client; //Communication
 
-        public IEnumerator ShowAndHide(GameObject panel, float delay)
+        public static IEnumerator ShowAndHideAlertPanel(GameObject panel, float delay)
         {
             panel.SetActive(true);
             panel.transform.GetChild(0).gameObject.SetActive(true);

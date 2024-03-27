@@ -38,9 +38,10 @@ public class King : Piece
     {
         var r = SpecialMove.None;
 
-        var kingMove = moveList.Find(m => m[0].x == 4 && m[0].y == ((team == 0) ? 0 : 7));
-        var leftRook = moveList.Find(m => m[0].x == 0 && m[0].y == ((team == 0) ? 0 : 7)); // Corrected position for left rook
-        var rightRook = moveList.Find(m => m[0].x == 7 && m[0].y == ((team == 0) ? 0 : 7)); // Corrected position for right rook
+        var kingMove = moveList.Find(m => m[0].x == 3 && m[0].y == ((team == 0) ? 0 : 7));
+        var leftRook = moveList.Find(m => m[0].x == 7 && m[0].y == ((team == 0) ? 0 : 7));
+        var rightRook = moveList.Find(m => m[0].x == 0 && m[0].y == ((team == 0) ? 0 : 7));
+
 
         // Check if the king has not moved, regardless of its current position
         if (kingMove == null)
@@ -49,16 +50,16 @@ public class King : Piece
             if (team == 0)
             {
                 // Check for left rook castling (queen side)
-                if (leftRook == null && IsPathClear(0, currentY, board))
+                if (leftRook == null && IsPathClear(7, currentY, board))
                 {
-                    availableMoves.Add(new Vector2Int(2, 0)); // Castling move for black team, queen side
+                    availableMoves.Add(new Vector2Int(5, 0)); // Castling move for black team, queen side
                     r = SpecialMove.Castle;
                 }
 
                 // Check for right rook castling (king side)
-                if (rightRook == null && IsPathClear(7, currentY, board))
+                if (rightRook == null && IsPathClear(0, currentY, board))
                 {
-                    availableMoves.Add(new Vector2Int(6, 0)); // Castling move for black team, king side
+                    availableMoves.Add(new Vector2Int(1, 0)); // Castling move for black team, king side
                     r = SpecialMove.Castle;
                 }
             }
@@ -66,16 +67,16 @@ public class King : Piece
             else
             {
                 // Check for left rook castling (queen side)
-                if (leftRook == null && IsPathClear(0, 7, board))
+                if (leftRook == null && IsPathClear(7, 7, board))
                 {
-                    availableMoves.Add(new Vector2Int(2, 7)); // Castling move for white team, queen side
+                    availableMoves.Add(new Vector2Int(5, 7)); // Castling move for white team, queen side
                     r = SpecialMove.Castle;
                 }
 
                 // Check for right rook castling (king side)
-                if (rightRook == null && IsPathClear(7, 7, board))
+                if (rightRook == null && IsPathClear(0, 7, board))
                 {
-                    availableMoves.Add(new Vector2Int(6, 7)); // Castling move for white team, king side
+                    availableMoves.Add(new Vector2Int(1, 7)); // Castling move for white team, king side
                     r = SpecialMove.Castle;
                 }
             }
@@ -88,7 +89,9 @@ public class King : Piece
     private bool IsPathClear(int rookX, int rookY, Piece[,] board)
     {
         int direction = rookX > currentX ? 1 : -1;
-        for (int x = currentX + direction; x != rookX; x += direction)
+        int startX = currentX + direction;
+        int endX = rookX - direction; 
+        for (int x = startX; x != endX; x += direction)
         {
             if (board[x, rookY] != null)
                 return false;

@@ -7,6 +7,12 @@
       "dependencies": {},
       "hash": "7388d28922b2144497f639630fd8b8b7a3c1ee6d"
     },
+    "com.pimdewitte.unitymainthreaddispatcher": {
+      "version": "file:/Users/george/Downloads/UnityMainThreadDispatcher",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "1.8.8",
       "depth": 1,
@@ -24,7 +30,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.27",
+      "version": "3.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -94,7 +100,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.textmeshpro": {
-      "version": "3.0.6",
+      "version": "3.0.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {
