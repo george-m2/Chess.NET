@@ -732,6 +732,9 @@ namespace ChessNET
                 SpecialMoveType = specialMove
             };
 
+            if (move.SpecialMoveType == SpecialMove.EnPassant)
+                move.TakenPiece = pieces[x, y - 1];
+            
             Vector2Int previousPosition = new(cp.currentX, cp.currentY);
 
             if (pieces[x, y] != null)
@@ -893,23 +896,18 @@ namespace ChessNET
 
                 case SpecialMove.EnPassant:
                     // If the move was en passant, restore the taken pawn
-                    if (move.Piece.team == 0) // white team
+                    if (move.TakenPiece != null)
                     {
-                        pieces[move.EndPosition.x, move.EndPosition.y - 1] = move.TakenPiece;
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y - 1);
-                    }
-                    else // black team
-                    {
-                        pieces[move.EndPosition.x, move.EndPosition.y + 1] = move.TakenPiece;
-                        PositionSinglePiece(move.EndPosition.x, move.EndPosition.y + 1);
+                        move.TakenPiece.transform.position =
+                            move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
+                        move.TakenPiece.SetScale(Vector3.one * takeSize);
+                        move.TakenPiece.gameObject.SetActive(true);
                     }
 
-                    move.TakenPiece.transform.position =
-                        move.OffBoardPosition.Value; // Move the taken piece back to its off-board position
-                    move.TakenPiece.SetScale(Vector3.one * takeSize);
+                    UndoMove(move);
 
-                    HandleTakenPiece(move);
                     break;
+
 
                 case SpecialMove.Promotion:
                     // Only proceed if there are pieces to undo the promotion of
@@ -946,7 +944,7 @@ namespace ChessNET
 
                     break;
 
-                case SpecialMove.None:
+                case SpecialMove.None: //default
                     if (move.TakenPiece != null)
                     {
                         move.TakenPiece.transform.position =
