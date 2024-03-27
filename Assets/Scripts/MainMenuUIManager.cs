@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class Menu : MonoBehaviour
     [SerializeField] private Slider stockfishSkillSlider;
     [SerializeField] private Button saveButton;
     [SerializeField] private Toggle ACPLToggle;
+    [SerializeField] private GameObject errorPanel;
+    [SerializeField] private Sprite errorImg;
+    [SerializeField] private Sprite saveImg;
 
     private List<Resolution> screenResolutions;
     private Resolution[] resolutions;
@@ -88,9 +92,19 @@ public class Menu : MonoBehaviour
             // and then adding 1 compensates for the skip over 0
             skillLevel = sliderValue - 2;
         }
+
+        // Validate and parse miniMaxDepthInputField.text
+        bool isValidDepth = int.TryParse(miniMaxDepthInputField.text, out int depth);
+        if (!isValidDepth || depth < 1 || depth > 50)
+        {
+            Debug.LogError("Invalid depth value. Depth must be an integer between 1 and 20.");
+            StartCoroutine(ShowOnSaveError(1.5f));
+            depth = 3; // Default depth
+        }
+
         JSONData data = new JSONData
         {
-            depth = miniMaxDepthInputField.text == "" ? 3 : int.Parse(miniMaxDepthInputField.text),
+            depth = depth,
             selectedEngine = engineDropdown.options[engineDropdown.value].text,
             stockfishSkillLevel = skillLevel,
             ACPL = ACPLToggle.isOn
@@ -99,6 +113,7 @@ public class Menu : MonoBehaviour
         WriteJSONData(data);
         Debug.Log("All settings saved");
     }
+
 
 
     //IDEs may mark these methods as unused, but they are assigned to UnityEvents in the inspector
@@ -139,6 +154,17 @@ public class Menu : MonoBehaviour
         {
             Debug.LogError("Error writing to JSON file: " + ex.Message);
         }
+    }
+
+    private IEnumerator ShowOnSaveError(float delay)
+    {
+        saveButton.interactable = false; // Disable the button
+        errorPanel.SetActive(true);
+        saveButton.GetComponent<Image>().sprite = errorImg;
+        yield return new WaitForSeconds(delay + 3);
+        saveButton.interactable = true; // Enable the button
+        saveButton.GetComponent<Image>().sprite = saveImg;
+        errorPanel.SetActive(false);
     }
 }
 
