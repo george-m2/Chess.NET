@@ -15,17 +15,25 @@ public class CobraPGNTranslator : MonoBehaviour
 
         if (san is "O-O" or "O-O-O")
         {
-            // Castling
-            pieceToMove = board.pieces[4, isWhiteTurn ? 0 : 7];
-            var targetX = san == "O-O" ? 6 : 2;
-            var targetY = isWhiteTurn ? 0 : 7;
+            pieceToMove = board.pieces[4, isWhiteTurn ? 7 : 0]; 
+            var kingTargetX = san == "O-O" ? 6 : 2; 
+            var kingTargetY = isWhiteTurn ? 7 : 0; 
+
+            var rookSourceX = san == "O-O" ? 7 : 0; 
+            var rookTargetX = san == "O-O" ? 5 : 3; 
+
             board.specialMove = SpecialMove.Castle;
-            if (board.MoveTo(pieceToMove, targetX, targetY))
+
+            if (board.MoveTo(pieceToMove, kingTargetX, kingTargetY)) 
             {
-                Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
+                var rookToMove = board.pieces[rookSourceX, isWhiteTurn ? 7 : 0]; 
+                board.MoveTo(rookToMove, rookTargetX, kingTargetY);
+                Debug.Log($"King moved to: ({kingTargetX}, {kingTargetY})");
+                Debug.Log($"Rook moved to: ({rookTargetX}, {kingTargetY})");
                 return true;
             }
         }
+
 
         if (san.Contains('='))
         {
