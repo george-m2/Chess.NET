@@ -8,9 +8,9 @@
       "hash": "7388d28922b2144497f639630fd8b8b7a3c1ee6d"
     },
     "com.pimdewitte.unitymainthreaddispatcher": {
-      "version": "file:/Users/george/Downloads/UnityMainThreadDispatcher",
+      "version": "file:com.pimdewitte.unitymainthreaddispatcher",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {}
     },
     "com.unity.burst": {

@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
-    "com.pimdewitte.unitymainthreaddispatcher": "file:/Users/george/Downloads/UnityMainThreadDispatcher",
+    "com.pimdewitte.unitymainthreaddispatcher": "file:../Assets/Packages/com.pimdewitte.unitymainthreaddispatcher",
     "com.unity.ide.rider": "3.0.28",
     "com.unity.render-pipelines.universal": "14.0.8",
     "com.unity.textmeshpro": "3.0.8",
