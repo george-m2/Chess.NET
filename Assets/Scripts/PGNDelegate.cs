@@ -21,7 +21,7 @@ namespace PGNDelegate
 
         private List<Vector2Int[]> CloneMoveList()
         {
-            return _chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>();
+            return _chessboard?.GetClonedMoveList() ?? new List<Vector2Int[]>(); // return a clone of the move list
         }
 
         private string ConvertToPGN(Vector2Int endPosition, PieceType piece)
@@ -30,21 +30,21 @@ namespace PGNDelegate
             int rank = 8 - endPosition.y;
 
             string pieceNotation = GetPieceNotation(piece);
-            string moveNotation = $"{file}{rank}";
+            string moveNotation = $"{file}{rank}"; // e.g. e4
 
             if (_move.isCapture)
             {
                 if (piece == PieceType.Pawn)
                 {
-                    char departureFile = (char)('h' - _move.StartPosition.x);
-                    moveNotation = $"{departureFile}x{moveNotation}";
+                    char departureFile = (char)('h' - _move.StartPosition.x); // e.g. exd4
+                    moveNotation = $"{departureFile}x{moveNotation}"; 
                 }
                 else
                 {
-                    moveNotation = $"{pieceNotation}x{moveNotation}";
+                    moveNotation = $"{pieceNotation}x{moveNotation}"; // e.g. Nxd4
                 }
             }
-            else if (_move.SpecialMoveType == SpecialMove.EnPassant)
+            else if (_move.SpecialMoveType == SpecialMove.EnPassant) // e.g. exd6 e.p.
             {
                 char departureFile = (char)('h' - _move.StartPosition.x);
                 moveNotation = $"{departureFile}x{moveNotation}";
@@ -56,10 +56,8 @@ namespace PGNDelegate
             }
 
             string specialMoveNotation = GetSpecialMoveNotation();
-            return _move.SpecialMoveType == SpecialMove.Castle ? $"{specialMoveNotation}" : $"{moveNotation}{specialMoveNotation}";
+            return _move.SpecialMoveType == SpecialMove.Castle ? $"{specialMoveNotation}" : $"{moveNotation}{specialMoveNotation}"; // e.g. O-O, O-O-O
         }
-
-
 
         private string GetPieceNotation(PieceType piece) => piece switch
         {
@@ -91,14 +89,14 @@ namespace PGNDelegate
 
         private string GetPromotionNotation()
         {
-            var promotedPieceType = _chessboard.promotedPieces.Peek().type;
-            return "=" + GetPieceNotation(promotedPieceType);
+            var promotedPieceType = _chessboard.promotedPieces.Peek().type; // get the promoted piece type at the top of the stack 
+            return "=" + GetPieceNotation(promotedPieceType); // e.g. =Q, =N
         }
 
         public string GeneratePGNString(bool includePGNHeader)
         {
             var moveList = CloneMoveList();
-            StringBuilder pgnBuilder = new StringBuilder();
+            StringBuilder pgnBuilder = new StringBuilder(); // StringBuilder object to export to .pgn file
 
             if (includePGNHeader)
             {
@@ -123,9 +121,9 @@ namespace PGNDelegate
 
         private void AppendMoves(StringBuilder builder, List<Vector2Int[]> moveList)
         {
-            for (int i = 0; i < moveList.Count; i++)
+            for (int i = 0; i < moveList.Count; i++) 
             {
-                if (i % 2 == 0)
+                if (i % 2 == 0) // if it's an even move number, append the move number
                 {
                     builder.Append($"{i / 2 + 1}. ");
                 }
@@ -157,7 +155,7 @@ namespace PGNDelegate
 
         public string ConvertCurrentMoveToSAN()
         {
-            var lastMove = _chessboard?.moveHistory?.LastOrDefault();
+            var lastMove = _chessboard?.moveHistory?.LastOrDefault(); // get the last move
             if (lastMove == null)
             {
                 throw new InvalidOperationException("No moves available");

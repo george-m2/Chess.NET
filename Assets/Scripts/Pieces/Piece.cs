@@ -24,33 +24,36 @@ namespace Pieces
         public PieceType type;
         public bool hasMoved = false;
 
-        private Vector3 desiredPosition;
+        private Vector3 desiredPosition; // position piece is moving towards
         private Vector3 desiredScale = Vector3.one;
 
         private void Update()
         {
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 10);
+            // smoothly move the piece towards the desired position and scale using vector interpolation
+            transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 10); 
             transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * 10);
 
         }
 
-        public virtual void SetPosition(Vector3 position, bool force = false)
+        public void SetPosition(Vector3 position, bool force = false)
         {
             desiredPosition = position;
-            if (force)
+            if (force) // fallback: set the position immediately
                 transform.position = desiredPosition;
         }
 
-        public virtual void SetScale(Vector3 scale, bool force = false)
+        public void SetScale(Vector3 scale, bool force = false)
         {
             desiredScale = scale;
-            if (force)
+            if (force) // fallback: set the scale immediately
                 transform.localScale = desiredScale;
         }
 
         public virtual List<Vector2Int> GetAvailableMoves(ref Piece[,] board, int tileCountX, int tileCountY)
         {
-            List<Vector2Int> n = new()
+            // list of pre-defined, fallback available moves
+            // values are irrelevant, as they will be overwritten by child pieces
+            List<Vector2Int> n = new() 
             {
                 new Vector2Int(3, 3),
                 new Vector2Int(3, 4),
@@ -64,7 +67,7 @@ namespace Pieces
         public virtual SpecialMove GetSpecialMoves(ref Piece[,] board, ref List<Vector2Int[]> moveList,
             ref List<Vector2Int> availableMoves)
         {
-            return SpecialMove.None;
+            return SpecialMove.None; // no special moves by default, to be overridden by child pieces
         }
 
         protected void CheckMovesInDirection(int dirX, int dirY, ref Piece[,] board, int tileCountX, int tileCountY, List<Vector2Int> moves)

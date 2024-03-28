@@ -9,14 +9,14 @@ public class CobraPGNTranslator : MonoBehaviour
     public bool TranslateSANAndMove(string san, Chessboard board, bool isWhiteTurn)
     {
         Debug.Log($"Translating SAN and moving: {san}");
-        var pieceToMove = FindPieceToMove(san, board);
+        var pieceToMove = FindPieceToMove(san, board); 
         Debug.Log($"Piece to move: {pieceToMove}");
         Debug.Log($"Start coordinates: ({pieceToMove.currentX}, {pieceToMove.currentY})");
 
-        if (san is "O-O" or "O-O-O")
+        if (san is "O-O" or "O-O-O") //castle
         {
-            pieceToMove = board.pieces[4, isWhiteTurn ? 7 : 0]; 
-            var kingTargetX = san == "O-O" ? 6 : 2; 
+            pieceToMove = board.pieces[4, isWhiteTurn ? 7 : 0]; //king
+            var kingTargetX = san == "O-O" ? 6 : 2;  
             var kingTargetY = isWhiteTurn ? 7 : 0; 
 
             var rookSourceX = san == "O-O" ? 7 : 0; 
@@ -26,7 +26,7 @@ public class CobraPGNTranslator : MonoBehaviour
 
             if (board.MoveTo(pieceToMove, kingTargetX, kingTargetY)) 
             {
-                var rookToMove = board.pieces[rookSourceX, isWhiteTurn ? 7 : 0]; 
+                var rookToMove = board.pieces[rookSourceX, isWhiteTurn ? 7 : 0];  //rook, depending on the team
                 board.MoveTo(rookToMove, rookTargetX, kingTargetY);
                 Debug.Log($"King moved to: ({kingTargetX}, {kingTargetY})");
                 Debug.Log($"Rook moved to: ({rookTargetX}, {kingTargetY})");
@@ -38,46 +38,40 @@ public class CobraPGNTranslator : MonoBehaviour
         if (san.Contains('='))
         {
             board.specialMove = SpecialMove.Promotion;
-            var promotionIndex = san.IndexOf('=');
-            if (promotionIndex != -1 && promotionIndex + 1 < san.Length)
+            var promotionIndex = san.IndexOf('='); //find the promotion character
+            if (promotionIndex != -1 && promotionIndex + 1 < san.Length) //if there is a promotion character
             {
-                var promotionChar = san[promotionIndex + 1];
-                var promotedPieceType = IdentifyPieceTypeFromSAN(promotionChar.ToString());
+                var promotionChar = san[promotionIndex + 1]; //get the promotion character
+                var promotedPieceType = IdentifyPieceTypeFromSAN(promotionChar.ToString()); //identify the piece type
 
                 // Determine the position of the pawn being promoted.
-                (int x, int y) pawnPosition = SANToBoardCoordinates(san.Substring(0, promotionIndex));
+                (int x, int y) pawnPosition = SANToBoardCoordinates(san.Substring(0, promotionIndex)); 
                 Debug.Log($"Pawn position for promotion: ({pawnPosition.x}, {pawnPosition.y})");
-
-                // Assuming the pawn to be promoted is at the target position.
+                
                 var pawnToPromote = board.pieces[pawnPosition.x, pawnPosition.y];
 
-                // Remove the pawn from the board.
+                // remove the pawn
                 if (pawnToPromote != null && pawnToPromote.type == PieceType.Pawn)
                     board.pieces[pawnPosition.x, pawnPosition.y].gameObject.SetActive(false);
 
-                // Spawn and position the promoted piece at the pawn's position.
+                // spawn and position the promoted piece at the pawn's position.
                 board.SpawnSinglePiece(promotedPieceType, 0);
                 board.PositionSinglePiece(pawnPosition.x, pawnPosition.y);
             }
         }
 
-        if (pieceToMove != null)
-        {
-            (int x, int y) target = SANToBoardCoordinates(san);
-            if (board.MoveTo(pieceToMove, target.x, target.y))
-            {
-                Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
-                return true;
-            }
-        }
+        if (pieceToMove == null) return false;
+        (int x, int y) target = SANToBoardCoordinates(san); //get the target coordinates
+        if (!board.MoveTo(pieceToMove, target.x, target.y)) return false; //move the piece
+        Debug.Log($"Moved piece to: ({pieceToMove.currentX}, {pieceToMove.currentY})");
+        return true;
 
-        return false;
     }
 
     private (int, int) SANToBoardCoordinates(string san)
     {
-        var fileIndex = san.IndexOfAny("abcdefgh".ToCharArray());
-        var rankIndex = san.IndexOfAny("12345678".ToCharArray());
+        var fileIndex = san.IndexOfAny("abcdefgh".ToCharArray()); //find the file char
+        var rankIndex = san.IndexOfAny("12345678".ToCharArray()); //find the rank char
 
         if (fileIndex == -1 || rankIndex == -1)
         {
@@ -85,10 +79,10 @@ public class CobraPGNTranslator : MonoBehaviour
             return (-1, -1);
         }
 
-        // Flipping and rotating the coordinates for file
+        // flip and rotate coordinates for file
         var endX = 7 - (san[fileIndex] - 'a');
 
-        // Adjusting the rank for the black team (AI)
+        // adjusting the rank for the black time
         var endY = 7 - (san[rankIndex] - '1');
 
         Debug.Log($"SAN: {san}, endX: {endX}, endY: {endY}");
@@ -100,9 +94,10 @@ public class CobraPGNTranslator : MonoBehaviour
         Debug.Log($"Finding piece to move: {san}");
         var pieceType = IdentifyPieceTypeFromSAN(san);
 
-        (var targetX, var targetY) = SANToBoardCoordinates(san);
+        var (targetX, targetY) = SANToBoardCoordinates(san);
 
         var candidates = new List<Piece>();
+        // find all pieces of the same type that can move to the target position
         for (var x = 0; x < Chessboard.TILE_COUNT_X; x++)
         for (var y = 0; y < Chessboard.TILE_COUNT_Y; y++)
         {
@@ -142,7 +137,7 @@ public class CobraPGNTranslator : MonoBehaviour
         };
     }
 
-    //If there are multiple pieces of the same type that can move to the same square,
+    //if there are multiple pieces of the same type that can move to the same square,
     //the moving piece is uniquely identified by specifying the piece's letter, followed by (if dsc):
     private Piece DisambiguatePiece(string san, List<Piece> candidates, Chessboard board)
     {
@@ -160,9 +155,9 @@ public class CobraPGNTranslator : MonoBehaviour
                     rankDisambiguation = c - '1';
                     break;
             }
-
+        
+        // filter candidates based on disambiguation
         if (fileDisambiguation != -1) candidates = candidates.Where(p => p.currentX == fileDisambiguation).ToList();
-
         if (rankDisambiguation != -1) candidates = candidates.Where(p => p.currentY == rankDisambiguation).ToList();
 
         Debug.Log($"Candidates after disambiguation: {candidates.Count}");

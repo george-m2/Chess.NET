@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -33,14 +32,14 @@ namespace GameUIManager
         private float maxBarSize;
         
         private Chessboard _chessboard;
-        private PGNExporter _pgnExporter;
-        private Client _client; //Communication
+        private PGNExporter _pgnExporter; //PGNDelegate.cs
+        private Client _client; //Communication.cs
 
         public static IEnumerator ShowAndHideAlertPanel(GameObject panel, float delay)
         {
             panel.SetActive(true);
-            panel.transform.GetChild(0).gameObject.SetActive(true);
-            yield return new WaitForSeconds(delay);
+            panel.transform.GetChild(0).gameObject.SetActive(true); // show the alert text
+            yield return new WaitForSeconds(delay); // wait for the delay
             panel.SetActive(false);
         }
 
@@ -48,13 +47,14 @@ namespace GameUIManager
         {
             exportPGNButton.interactable = false; // Disable the button
             exportPGNButton.GetComponent<Image>().sprite = tick;
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delay); // wait for the delay
             exportPGNButton.GetComponent<Image>().sprite = exportIcon;
             exportPGNButton.interactable = true; // Enable the button
         }
 
         private void Awake()
         {
+            //find instances in Unity, add listeners to buttons
             _chessboard = FindObjectOfType<Chessboard>();
             _pgnExporter = FindObjectOfType<PGNExporter>();
             ResignButton.onClick.AddListener(ShowResignPanel);
@@ -74,7 +74,7 @@ namespace GameUIManager
                 _chessboard.Restart();
             });
             noResign.onClick.AddListener(() => ResignPanel.SetActive(false));
-            exitOnResign.onClick.AddListener(() => Application.Quit());
+            exitOnResign.onClick.AddListener(Application.Quit);
         }
 
         private void ExportHandler()
@@ -82,7 +82,7 @@ namespace GameUIManager
             var errcode = _pgnExporter.ExportToPGN();
             if (errcode == 0)
             {
-                StartCoroutine(TickExportButton(1.5f));
+                StartCoroutine(TickExportButton(1.5f)); // show the tick for 1.5 seconds
             }
         }
 
@@ -105,25 +105,18 @@ namespace GameUIManager
 
         public void HandleACPL(float acpl)
         {
-            // normalise ACPL magnitude to 0-1 range for absolute fill amount
-            float magnitude = Mathf.Abs(acpl) / 20f;
-            magnitude = Mathf.Clamp(magnitude, 0f, 1f);
-            AcplContainerFill.fillAmount = magnitude;
+            float normalizedACPL = Mathf.Clamp(Mathf.Abs(acpl) / 20f, 0f, 1f); // normalize ACPL to 0-1
+            AcplContainerFill.fillAmount = normalizedACPL;
 
-            // gradient from black (-20 ACPL) through gray (0 ACPL) to white (+20 ACPL)
-            float colorIntensity = (acpl + 20) / 40f; // 0-1 intensity
-            colorIntensity = Mathf.Clamp(colorIntensity, 0f, 1f);
+            float colorIntensity = Mathf.Clamp((acpl + 20) / 40f, 0f, 1f); 
+            AcplContainerFill.color = new Color(colorIntensity, colorIntensity, colorIntensity); // change color based on ACPL
+
             acplText.text = acpl.ToString();
-            AcplContainerFill.color = new Color(colorIntensity, colorIntensity, colorIntensity);
-
-            acplText.color = colorIntensity > 0.5
-                ? Color.black
-                : // dark text, light background
-                Color.white; // light text, dark background
+            acplText.color = colorIntensity > 0.5 ? Color.black : Color.white;
 
 
 
-            var centipawn_accuracy = acpl / 100;
+            var centipawn_accuracy = acpl / 100; // convert ACPL to centipawn accuracy
 
             // prepend "+" for positive ACPL values
             if (centipawn_accuracy is > 99 or < -99)
@@ -145,7 +138,7 @@ namespace GameUIManager
 
         public void OpenACPLGraph()
         {
-            Process.Start(Application.persistentDataPath + "/ACPLGraph.png");
+            Process.Start(Application.persistentDataPath + "/ACPLGraph.png"); // open the ACPL graph
         }
 
     }

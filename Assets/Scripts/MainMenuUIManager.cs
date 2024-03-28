@@ -5,7 +5,6 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
@@ -32,10 +31,11 @@ public class Menu : MonoBehaviour
 
     private void Start()
     {
-        resolutions = Screen.resolutions;
-        screenResolutions = new List<Resolution>();
+        resolutions = Screen.resolutions; // get all available resolutions
+        screenResolutions = new List<Resolution>(); //list of resolutions with the same refresh rate as the current resolution
         resolutionDropdown.ClearOptions();
-        currentRefreshRate = Screen.currentResolution.refreshRate;
+        //TODO: Use refreshRateRatio instead.
+        currentRefreshRate = Screen.currentResolution.refreshRate; // get the current refresh rate
 
         settingsButton.onClick.AddListener(() => 
         {
@@ -48,27 +48,28 @@ public class Menu : MonoBehaviour
             settingsPanel.SetActive(false);
             mainMenuPanel.SetActive(true);
         });
-        
+
+        // Add listeners to the UI elements
         saveButton.onClick.AddListener(SaveAllSettings);
-        
-        stockfishSkillSlider.onValueChanged.AddListener(delegate { });
+        stockfishSkillSlider.onValueChanged.AddListener(delegate { }); 
         engineDropdown.onValueChanged.AddListener(delegate { });
         miniMaxDepthInputField.onValueChanged.AddListener(delegate { });
 
-        for (var i = 0; i < resolutions.Length; i++)
+        foreach (var t in resolutions)
         {
-            if (resolutions[i].refreshRate == currentRefreshRate)
+            //TODO: Use refreshRateRatio instead.
+            if (t.refreshRate == currentRefreshRate) // get all resolutions with the same refresh rate as the current resolution
             {
-                screenResolutions.Add(resolutions[i]);
+                screenResolutions.Add(t);
             }
         }
 
         List<string> options = new List<string>();
         for (int i = 0; i < screenResolutions.Count; i++)
         {
-            string resolutionOption = screenResolutions[i].width + " x " + screenResolutions[i].height + " " + screenResolutions[i].refreshRate + "Hz";
+            string resolutionOption = screenResolutions[i].width + " x " + screenResolutions[i].height + " " + screenResolutions[i].refreshRate + "Hz"; // add the resolution to the dropdown
             options.Add(resolutionOption);
-            if (screenResolutions[i].width == Screen.width && screenResolutions[i].height == Screen.height)
+            if (screenResolutions[i].width == Screen.width && screenResolutions[i].height == Screen.height) // set the current resolution index
             {
                 currentResolutionIndex = i;
             }
@@ -76,7 +77,7 @@ public class Menu : MonoBehaviour
 
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResolutionIndex;
-        resolutionDropdown.RefreshShownValue();
+        resolutionDropdown.RefreshShownValue(); // refresh the dropdown to show the current resolution
     }
 
     private void SaveAllSettings()
@@ -98,11 +99,11 @@ public class Menu : MonoBehaviour
         if (!isValidDepth || depth < 1 || depth > 50)
         {
             Debug.LogError("Invalid depth value. Depth must be an integer between 1 and 20.");
-            StartCoroutine(ShowOnSaveError(1.5f));
+            StartCoroutine(ShowOnSaveError(1.5f)); // Show error message for 1.5 seconds
             depth = 3; // Default depth
         }
 
-        JSONData data = new JSONData
+        JSONData data = new JSONData // JSONData object with the settings
         {
             depth = depth,
             selectedEngine = engineDropdown.options[engineDropdown.value].text,
@@ -125,8 +126,8 @@ public class Menu : MonoBehaviour
     
     public void SetResolution(int resolutionIndex)
     {
-        Resolution resolution = screenResolutions[resolutionIndex];
-        Screen.SetResolution(resolution.width, resolution.height, true);
+        Resolution resolution = screenResolutions[resolutionIndex]; // get the selected resolution
+        Screen.SetResolution(resolution.width, resolution.height, true); // set the resolution
     }
 
     public void SetFullscreen(bool isFullscreen)
@@ -161,7 +162,7 @@ public class Menu : MonoBehaviour
         saveButton.interactable = false; // Disable the button
         errorPanel.SetActive(true);
         saveButton.GetComponent<Image>().sprite = errorImg;
-        yield return new WaitForSeconds(delay + 3);
+        yield return new WaitForSeconds(delay + 3); // wait for the delay
         saveButton.interactable = true; // Enable the button
         saveButton.GetComponent<Image>().sprite = saveImg;
         errorPanel.SetActive(false);
