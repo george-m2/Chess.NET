@@ -16,4 +16,5 @@
 - [UnityMainThreadDispatcher](https://github.com/PimDeWitte/UnityMainThreadDispatcher) - used for thread safety when communicating between cobra and Chess.NET.
 - NetMQ 4.0+ - used for communciation with the cobra engine.
 - NuGetForUnity (optional, but highly recommended)
-- cobra executable 
+
+To build Chess.NET see [the build instructions](https://github.com/george-m2/Chess.NET/blob/9a5711b76820567a96a2529c9df60ba4c9a560cc/build_info.md).
