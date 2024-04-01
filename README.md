@@ -1,5 +1,6 @@
 # Chess.NET
 ### **A Chess frontend created in Unity**
+![Sequence 01](https://github.com/george-m2/Chess.NET/assets/60574716/3a77e5ce-1f85-4426-8c80-cba2dbb0735d)
 
 #### Features:
 - Smooth piece movement via clicking and dragging
